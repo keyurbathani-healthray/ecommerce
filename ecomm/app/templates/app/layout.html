@@ -49,23 +49,22 @@
                 products
               </a>
               <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="#">Milk</a></li>
-                <li><a class="dropdown-item" href="#">Curd</a></li>
-                <li><a class="dropdown-item" href="#">Milkshake</a></li>
-                <li><a class="dropdown-item" href="#">Lassi</a></li>
-                <li><a class="dropdown-item" href="#">Ghee</a></li>
-                <li><a class="dropdown-item" href="#">Paneer</a></li>
-                <li><a class="dropdown-item" href="#">Cheese</a></li>
-                <li><a class="dropdown-item" href="#">Ice Cream</a></li>
-        
+                <li><a class="dropdown-item" href="{% url 'category' 'ML' %}">Milk</a></li>
+                <li><a class="dropdown-item" href="{% url 'category' 'CR' %}">Curd</a></li>
+                <li><a class="dropdown-item" href="{% url 'category' 'MS' %}">Milkshake</a></li>
+                <li><a class="dropdown-item" href="{% url 'category' 'LS' %}">Lassi</a></li>
+                <li><a class="dropdown-item" href="{% url 'category' 'GH' %}">Ghee</a></li>
+                <li><a class="dropdown-item" href="{% url 'category' 'PN' %}">Paneer</a></li>
+                <li><a class="dropdown-item" href="{% url 'category' 'CZ' %}">Cheese</a></li>
+                <li><a class="dropdown-item" href="{% url 'category' 'IC' %}">Ice Cream</a></li>
               </ul>
             </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Link</a>
+            <li class="nav-item text-white">
+              <a class="nav-link" href="#">Contact Us</a>
             </li>
 
-            <li class="nav-item">
-              <a class="nav-link disabled" aria-disabled="true">Disabled</a>
+            <li class="nav-item text-white">
+              <a class="nav-link disabled" aria-disabled="true">About Us</a>
             </li>
           </ul>
           <form class="d-flex" role="search">
@@ -80,11 +79,46 @@
             </button>
           </form>
         </div>
+
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item dropdown mx-2">
+            <a
+              class="nav-link dropdown-toggle text-white"
+              href="#"
+              id="profileDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Nilesh
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+              <li><a class="dropdown-item" href="#">Profile</a></li>
+              <li><a class="dropdown-item" href="#">Orders</a></li>
+              <li><a class="dropdown-item" href="#">Change Password</a></li>
+              <li><a class="dropdown-item" href="#">Logout</a></li>
+            </ul>
+          </li>
+          <li class="nav-item mx-2">
+            <a href="#" class="nav-link text-white">Cart 4</a>
+          </li>
+          <li class="nav-item mx-2">
+            <a href="#" class="nav-link text-white">Wishlist 4</a>
+          </li>
+          <li class="nav-item mx-2">
+            <a href="#" class="nav-link text-white">Login</a>
+          </li>
+          <li class="nav-item mx-2">
+            <a href="#" class="nav-link text-white">Registration</a>
+          </li>
+        </ul>
       </div>
     </nav>
+  {% block banner_slider %}{% endblock %}
+   {% block information %}{% endblock  %}
     {% block content %} Keyur bathani {% endblock %}
 
-    <footer>copy right message</footer>
+    <footer class="container-fluid fixed-bottom bg-success text-center p-2 mt-5">copy right message</footer>
 
     <script
       src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
