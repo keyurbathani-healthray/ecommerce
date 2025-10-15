@@ -1,0 +1,6 @@
+Django==5.2.7
+django-browser-reload==1.21.0
+djlint==1.36.4
+Pillow==9.0.1
+sqlparse==0.5.3
+requests==2.25.1
