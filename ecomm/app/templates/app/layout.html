@@ -10,6 +10,11 @@
       integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
       crossorigin="anonymous"
     />
+    <link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  rel="stylesheet"
+/>
+
     <link rel="stylesheet" href="{% static 'app/owl.carousel.min.css' %}" />
     <link rel="stylesheet" href="{% static 'app/all.min.css' %}" />
     <link rel="stylesheet" href="{% static 'app/style.css' %}" />
@@ -36,17 +41,17 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Home</a>
+              <a class="nav-link active text-dark fw-semibold" aria-current="page" href="{% url 'home' %}">Home</a>
             </li>
 
             <li class="nav-item dropdown">
               <a
-                class="nav-link dropdown-toggle"
+                class="nav-link dropdown-toggle text-dark fw-semibold"
                 href="#"
                 role="button"
                 data-bs-toggle="dropdown"
               >
-                products
+                Products
               </a>
               <ul class="dropdown-menu">
                 <li><a class="dropdown-item" href="{% url 'category' 'ML' %}">Milk</a></li>
@@ -59,65 +64,86 @@
                 <li><a class="dropdown-item" href="{% url 'category' 'IC' %}">Ice Cream</a></li>
               </ul>
             </li>
-            <li class="nav-item text-white">
-              <a class="nav-link" href="#">Contact Us</a>
+            <li class="nav-item">
+              <a class="nav-link text-dark fw-semibold" href="{% url 'contactus' %}">Contact Us</a>
             </li>
 
-            <li class="nav-item text-white">
-              <a class="nav-link disabled" aria-disabled="true">About Us</a>
+            <li class="nav-item">
+              <a class="nav-link text-dark fw-semibold" href="{% url 'aboutus' %}">About Us</a>
             </li>
           </ul>
-          <form class="d-flex" role="search">
+          <form class="d-flex me-3" role="search">
             <input
               class="form-control me-2"
               type="search"
               placeholder="Search"
               aria-label="Search"
             />
-            <button class="btn btn-outline-success" type="submit">
+            <button class="btn btn-outline-light" type="submit">
               Search
             </button>
           </form>
-        </div>
 
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item dropdown mx-2">
-            <a
-              class="nav-link dropdown-toggle text-white"
-              href="#"
-              id="profileDropdown"
-              role="button"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              Nilesh
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-              <li><a class="dropdown-item" href="#">Profile</a></li>
-              <li><a class="dropdown-item" href="#">Orders</a></li>
-              <li><a class="dropdown-item" href="#">Change Password</a></li>
-              <li><a class="dropdown-item" href="#">Logout</a></li>
-            </ul>
-          </li>
-          <li class="nav-item mx-2">
-            <a href="#" class="nav-link text-white">Cart 4</a>
-          </li>
-          <li class="nav-item mx-2">
-            <a href="#" class="nav-link text-white">Wishlist 4</a>
-          </li>
-          <li class="nav-item mx-2">
-            <a href="#" class="nav-link text-white">Login</a>
-          </li>
-          <li class="nav-item mx-2">
-            <a href="#" class="nav-link text-white">Registration</a>
-          </li>
-        </ul>
+          <ul class="navbar-nav mb-2 mb-lg-0 align-items-lg-center">
+
+  {% if request.user.is_authenticated %}
+    <!-- Profile Dropdown -->
+    <li class="nav-item dropdown mx-2">
+      <a
+        class="nav-link dropdown-toggle text-white"
+        href="#"
+        id="profileDropdown"
+        role="button"
+        data-bs-toggle="dropdown"
+        aria-expanded="false"
+      >
+        {{ request.user.username }}
+      </a>
+      <ul class="dropdown-menu" aria-labelledby="profileDropdown">
+        <li><a class="dropdown-item" href="#">Profile</a></li>
+        <li><a class="dropdown-item" href="#">Orders</a></li>
+        <li><a class="dropdown-item" href="#">Change Password</a></li>
+        <li><a class="dropdown-item" href="{% url 'customer-logout' %}">Logout</a></li>
+      </ul>
+    </li>
+
+    <!-- Cart -->
+    <li class="nav-item mx-2">
+      <a href="#" class="nav-link text-white position-relative">
+        <i class="fas fa-shopping-cart fs-5"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          4
+        </span>
+      </a>
+    </li>
+
+    <!-- Wishlist -->
+    <li class="nav-item mx-2">
+      <a href="#" class="nav-link text-white position-relative">
+        <i class="fas fa-heart fs-5"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          4
+        </span>
+      </a>
+    </li>
+
+  {% else %}
+    <!-- Login and Register Buttons -->
+    <li class="nav-item mx-2">
+      <a href="{% url 'customer-login' %}" class="btn btn-light text-success fw-semibold px-3">Login</a>
+    </li>
+    <li class="nav-item mx-2">
+      <a href="{% url 'customer-registration' %}" class="btn btn-outline-light fw-semibold px-3">Registration</a>
+    </li>
+  {% endif %}
+</ul>
+
+        </div>
       </div>
     </nav>
   {% block banner_slider %}{% endblock %}
    {% block information %}{% endblock  %}
     {% block content %} Keyur bathani {% endblock %}
-
     <footer class="container-fluid fixed-bottom bg-success text-center p-2 mt-5">copy right message</footer>
 
     <script

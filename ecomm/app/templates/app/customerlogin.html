@@ -1,0 +1,47 @@
+{% extends 'app/layout.html' %}
+{% load static %}
+{% block title %}Customer Login{% endblock %}
+{% block content %}
+
+<div class="bg-light">
+
+<div class="container mt-5">
+  <div class="col-md-5 offset-md-3">
+    <div class="card shadow p-4 rounded-4">
+      <h3 class="text-center mb-3">🔐 Login to Your Account</h3>
+
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <form method="POST" novalidate>
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        {% for field in form %}
+          <div class="mb-3">
+            <label class="form-label">{{ field.label }}</label>
+            {{ field }}
+            {% for error in field.errors %}
+              <div class="text-danger small">{{ error }}</div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+
+        <button type="submit" class="btn btn-primary w-100 mt-2">Login</button>
+
+        <p class="text-center mt-3 mb-0">
+          Don’t have an account? <a href="{% url 'customer-registration' %}">Register here</a>
+        </p>
+      </form>
+    </div>
+  </div>
+</div>
+
+</div>
+{% endblock %}
