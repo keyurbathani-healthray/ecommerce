@@ -1,12 +1,31 @@
 from django.shortcuts import render, redirect
 from .models import Product
 from django.views import View
-from .forms import CustomerRegistrationForm, CustomerLoginForm
+from .forms import CustomerRegistrationForm, CustomerLoginForm, CustomPasswordChangeForm
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.views.decorators.csrf import csrf_protect
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth.decorators import login_required
 
 
 # Create your views here.
+@login_required
+def change_password(request):
+    if request.method == 'POST':
+        form = CustomPasswordChangeForm(user=request.user, data=request.POST)
+        if form.is_valid():
+            form.save()
+            # Update the session to prevent logging out the user
+            update_session_auth_hash(request, form.user)
+            messages.success(request, 'Your password was successfully updated!')
+            return redirect('home')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = CustomPasswordChangeForm(user=request.user)
+    return render(request, 'app/changepassword.html', {'form': form})
+
 def home(request):
     return render(request, 'app/home.html')
 

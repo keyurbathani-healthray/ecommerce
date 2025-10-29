@@ -122,6 +122,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -129,6 +131,7 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 # Django Messages to work with Bootstrap
@@ -141,3 +144,9 @@ MESSAGE_TAGS = {
 LOGIN_URL = 'customer-login'
 LOGOUT_REDIRECT_URL = 'customer-login'
 LOGIN_REDIRECT_URL = 'home'  # where to go after login
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'app.backends.EmailOrUsernameModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]

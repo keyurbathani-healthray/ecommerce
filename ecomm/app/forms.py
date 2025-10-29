@@ -1,7 +1,18 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+
+# Custom Password Change Form with Bootstrap styling
+class CustomPasswordChangeForm(PasswordChangeForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add Bootstrap classes to all fields
+        for field in self.fields.values():
+            field.widget.attrs.update({
+                'class': 'form-control',
+                'data-password-toggle': 'true'
+            })
 
 # ✅ Registration Form with server-side validation
 class CustomerRegistrationForm(UserCreationForm):
@@ -14,6 +25,20 @@ class CustomerRegistrationForm(UserCreationForm):
         required=True,
         widget=forms.EmailInput(attrs={'placeholder': 'Enter your email', 'class': 'form-control'})
     )
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Add password toggle attribute to both password fields
+        self.fields['password1'].widget.attrs.update({
+            'class': 'form-control',
+            'data-password-toggle': 'true',
+            'placeholder': 'Enter password'
+        })
+        self.fields['password2'].widget.attrs.update({
+            'class': 'form-control',
+            'data-password-toggle': 'true',
+            'placeholder': 'Confirm password'
+        })
 
     class Meta:
         model = User
@@ -43,24 +68,30 @@ class CustomerRegistrationForm(UserCreationForm):
 # ✅ Login Form with server-side validation
 class CustomerLoginForm(AuthenticationForm):
     username = forms.CharField(
-        widget=forms.TextInput(attrs={'placeholder': 'Enter username', 'class': 'form-control'})
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Enter username or email',
+            'class': 'form-control'
+        })
     )
     password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'placeholder': 'Enter password', 'class': 'form-control'})
+        widget=forms.PasswordInput(attrs={
+            'placeholder': 'Enter password', 
+            'class': 'form-control'
+        })
     )
 
     def clean(self):
         cleaned_data = super().clean()
         username = cleaned_data.get('username')
         password = cleaned_data.get('password')
-
-        # Check if user exists
-        if not User.objects.filter(username=username).exists():
-            raise ValidationError("❌ No account found with this username.")
-
-        user = User.objects.filter(username=username).first()
-        if user and not user.is_active:
-            raise ValidationError("⚠️ This account is inactive. Contact admin.")
+        
+        if username and password:
+            # The actual authentication will be handled by our custom backend
+            if not self.user_cache:
+                raise ValidationError("❌ Invalid username/email or password.")
+            elif not self.user_cache.is_active:
+                raise ValidationError("⚠️ This account is inactive. Contact admin.")
+        
         return cleaned_data
 
 

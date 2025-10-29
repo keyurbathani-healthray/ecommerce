@@ -17,6 +17,7 @@
 
     <link rel="stylesheet" href="{% static 'app/owl.carousel.min.css' %}" />
     <link rel="stylesheet" href="{% static 'app/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'app/css/password-field.css' %}" />
     <link rel="stylesheet" href="{% static 'app/style.css' %}" />
     <title>{% block title %}Dairy products{% endblock %}</title>
   </head>
@@ -97,12 +98,10 @@
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
-        {{ request.user.username }}
+        <i class="fas fa-user"></i> {{request.user.username|title}}
       </a>
       <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-        <li><a class="dropdown-item" href="#">Profile</a></li>
-        <li><a class="dropdown-item" href="#">Orders</a></li>
-        <li><a class="dropdown-item" href="#">Change Password</a></li>
+        <li><a class="dropdown-item" href="{% url 'change-password' %}">Change Password</a></li>
         <li><a class="dropdown-item" href="{% url 'customer-logout' %}">Logout</a></li>
       </ul>
     </li>
@@ -160,6 +159,7 @@
     <script src="{% static 'app/owl.carousel.min.js' %}"></script>
     <script src="{% static 'app/all.min.js' %}"></script>
     <script src="{% static 'app/myscript.js' %}"></script>
+    <script src="{% static 'app/js/password-toggle.js' %}"></script>
 
     {% django_browser_reload_script %}
   </body>

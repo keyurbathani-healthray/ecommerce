@@ -26,7 +26,16 @@
         {% for field in form %}
           <div class="mb-3">
             <label class="form-label">{{ field.label }}</label>
-            {{ field }}
+            {% if field.name == 'password' %}
+              <div class="password-field-container">
+                {{ field }}
+                <span class="password-toggle">
+                  <i class="far fa-eye"></i>
+                </span>
+              </div>
+            {% else %}
+              {{ field }}
+            {% endif %}
             {% for error in field.errors %}
               <div class="text-danger small">{{ error }}</div>
             {% endfor %}
@@ -36,7 +45,10 @@
         <button type="submit" class="btn btn-primary w-100 mt-2">Login</button>
 
         <p class="text-center mt-3 mb-0">
-          Don’t have an account? <a href="{% url 'customer-registration' %}">Register here</a>
+          Don't have an account? <a href="{% url 'customer-registration' %}">Register here</a>
+        </p>
+        <p class="text-center mt-2 mb-0">
+          <a href="{% url 'password_reset' %}">Forgot password?</a>
         </p>
       </form>
     </div>

@@ -39,7 +39,16 @@
               <div class="mb-4">
                 <label class="form-label fw-semibold text-dark">{{ field.label }}</label>
                 <div class="w-100">
-                  {{ field }}
+                  {% if 'password' in field.name %}
+                    <div class="password-field-container">
+                      {{ field }}
+                      <span class="password-toggle">
+                        <i class="far fa-eye"></i>
+                      </span>
+                    </div>
+                  {% else %}
+                    {{ field }}
+                  {% endif %}
                 </div>
                 {% for error in field.errors %}
                   <div class="text-danger small mt-2">{{ error }}</div>
