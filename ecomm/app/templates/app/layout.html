@@ -101,7 +101,7 @@
         <i class="fas fa-user"></i> {{request.user.username|title}}
       </a>
       <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-        <li><a class="dropdown-item" href="#">Profile</a></li>
+        <li><a class="dropdown-item" href="{% url 'customer-profile' %}">Profile</a></li>
         <li><a class="dropdown-item" href="#">Orders</a></li>
         <li><a class="dropdown-item" href="{% url 'change-password' %}">Change Password</a></li>
         <li><a class="dropdown-item" href="{% url 'customer-logout' %}">Logout</a></li>

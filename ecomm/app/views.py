@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect
-from .models import Product
+from .models import Product, Customer
 from django.views import View
-from .forms import CustomerRegistrationForm, CustomerLoginForm, CustomPasswordChangeForm
+from .forms import CustomerProfileForm, CustomerRegistrationForm, CustomerLoginForm, CustomPasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
-from django.views.decorators.csrf import csrf_protect
-from django.contrib.auth.forms import PasswordChangeForm
+# from django.views.decorators.csrf import csrf_protect
+# from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 
 
@@ -21,7 +21,7 @@ def change_password(request):
             messages.success(request, 'Your password was successfully updated!')
             return redirect('home')
         else:
-            messages.error(request, 'Please correct the errors below.')
+            messages.error(request, 'Please correct the errors above.')
     else:
         form = CustomPasswordChangeForm(user=request.user)
     return render(request, 'app/changepassword.html', {'form': form})
@@ -94,6 +94,39 @@ def customer_login(request):
     else:
         form = CustomerLoginForm()
     return render(request, 'app/customerlogin.html', {'form': form})
+
+
+
+class customer_profile(View):
+    def get(self, request):
+        form = CustomerProfileForm()
+        return render(request, 'app/customerprofile.html', locals())
+    def post(self, request):
+        form = CustomerProfileForm(request.POST)
+        if form.is_valid():
+            user=request.user
+            name = form.cleaned_data['name']
+            locality = form.cleaned_data['locality']
+            city = form.cleaned_data['city']
+            mobile = form.cleaned_data['mobile']
+            zipcode = form.cleaned_data['zipcode']
+            state = form.cleaned_data['state']
+
+            reg = Customer(
+                user=user,
+                name=name,
+                locality=locality,
+                city=city,
+                mobile=mobile,
+                zipcode=zipcode,
+                state=state
+            )
+            reg.save()
+            messages.success(request, '🎉 Profile updated successfully!')
+            return redirect('customer-profile')
+        else :
+            messages.warning(request, '⚠️ Please correct the errors above.')
+        return render(request, 'app/customerprofile.html', locals())
 
 
 # ✅ Logout View

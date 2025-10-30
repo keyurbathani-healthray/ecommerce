@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from .models import Customer
 
 # Custom Password Change Form with Bootstrap styling
 class CustomPasswordChangeForm(PasswordChangeForm):
@@ -95,3 +96,15 @@ class CustomerLoginForm(AuthenticationForm):
         return cleaned_data
 
 
+class CustomerProfileForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = ['name', 'locality', 'city', 'mobile', 'zipcode', 'state']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'locality': forms.TextInput(attrs={'class': 'form-control'}),
+            'city': forms.TextInput(attrs={'class': 'form-control'}),   
+            'mobile': forms.TextInput(attrs={'class': 'form-control'}),
+            'zipcode': forms.TextInput(attrs={'class': 'form-control'}),
+            'state': forms.Select(attrs={'class': 'form-control'}),
+        }

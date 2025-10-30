@@ -1,0 +1,54 @@
+{% extends 'app/layout.html' %}
+{% load static %}
+{% block title %}Customer Profile{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+  <div class="row mb-4">
+    <div class="col-12">
+      <h3 class="border-bottom pb-3">Welcome <span class="text-capitalize text-primary">{{ request.user }}</span></h3>
+    </div>
+  </div>
+  
+  <div class="row">
+    <div class="col-md-3">
+      <div class="list-group shadow-sm">
+        <a href="#" class="list-group-item list-group-item-action active d-flex align-items-center">
+          <i class="fas fa-user-circle me-2"></i>Profile
+        </a>
+        <a href="#" class="list-group-item list-group-item-action d-flex align-items-center">
+          <i class="fas fa-map-marker-alt me-2"></i>Address
+        </a>
+      </div>
+    </div>
+    
+    <div class="col-md-8 ms-auto">
+  <form action="" method="post">
+    {% csrf_token %}
+    {% for fm in form %}
+      {{ fm.label_tag }} {{ fm }}
+      <small class="text-danger">{{ fm.errors|striptags }}</small>
+      <br>
+    {% endfor %}
+    <div class="col-12 mt-3">
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </div>
+      {% if form.non_field_errors %}
+  {% for error in form.non_field_errors %}
+    <p class="alert alert-danger my-3">{{ error }}</p>
+  {% endfor %}
+{% endif %}
+
+{% if messages %}
+  {% for msg in messages %}
+    <div class="alert alert-{{ msg.tags }}" role="alert">
+      {{ msg }}
+    </div>
+  {% endfor %}
+{% endif %}
+
+  </form>
+</div>
+</div>
+</div>
+{% endblock %}

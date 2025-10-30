@@ -10,6 +10,9 @@ urlpatterns = [
    path('category/<slug:val>/', views.CategoryView.as_view(), name='category'),
    path('product/<int:pk>/', views.ProductDetailView.as_view(), name='product_details'),
    path('category-title/<val>/', views.CategoryTitleView.as_view(), name='category-title'),
+   path('profile/', views.customer_profile.as_view(), name='customer-profile'),
+#    path('address/', views.customer_address.as_view(), name='customer-address'),
+
 
 
    # Authentication URLs
