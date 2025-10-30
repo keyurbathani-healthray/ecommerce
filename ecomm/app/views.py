@@ -104,30 +104,35 @@ class customer_profile(View):
     def post(self, request):
         form = CustomerProfileForm(request.POST)
         if form.is_valid():
-            user=request.user
-            name = form.cleaned_data['name']
-            locality = form.cleaned_data['locality']
-            city = form.cleaned_data['city']
-            mobile = form.cleaned_data['mobile']
-            zipcode = form.cleaned_data['zipcode']
-            state = form.cleaned_data['state']
-
-            reg = Customer(
-                user=user,
-                name=name,
-                locality=locality,
-                city=city,
-                mobile=mobile,
-                zipcode=zipcode,
-                state=state
-            )
-            reg.save()
-            messages.success(request, '🎉 Profile updated successfully!')
-            return redirect('customer-profile')
+           customer = form.save(commit=False)
+           customer.user = request.user
+           customer.save()
+           messages.success(request, '🎉 Profile updated successfully!')
+           return redirect('customer-profile')
         else :
             messages.warning(request, '⚠️ Please correct the errors above.')
         return render(request, 'app/customerprofile.html', locals())
 
+def customer_address(request):
+    add = Customer.objects.filter(user=request.user)
+    return render(request, 'app/customeraddress.html', locals())
+
+
+class update_address(View):
+    def get(self, request, pk):
+        add = Customer.objects.get(pk=pk)
+        form = CustomerProfileForm(instance=add)
+        return render(request, 'app/updateaddress.html', locals())
+    def post(self, request, pk):
+        add = Customer.objects.get(pk=pk)
+        form = CustomerProfileForm(request.POST,instance=add)
+        if form.is_valid():
+            form.save()
+            messages.success(request, '🎉 Address updated successfully!')
+            return redirect('customer-address')
+        else :
+            messages.warning(request, '⚠️ Please correct the errors above.')
+        return render(request, 'app/updateaddress.html', locals())
 
 # ✅ Logout View
 def customer_logout(request):
