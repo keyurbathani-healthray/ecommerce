@@ -1,5 +1,6 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from .models import Product, Customer, cart
+from .models import Product, Customer, cart , get_object_or_404
 from django.views import View
 from .forms import CustomerProfileForm, CustomerRegistrationForm, CustomerLoginForm, CustomPasswordChangeForm
 from django.contrib import messages
@@ -7,6 +8,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 # from django.views.decorators.csrf import csrf_protect
 # from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 
 # Create your views here.
@@ -145,7 +147,7 @@ def delete_address(request, pk):
     
     # If it's a GET request, just redirect back.
     # This prevents users from visiting the delete URL directly.
-      return redirect('customer-address')
+    #   return redirect('customer-address')
 
 
 
@@ -160,16 +162,83 @@ def customer_logout(request):
 
 def add_to_cart(request, pk):
     user = request.user
-    product = Product.objects.get(pk=pk)
-    cart(user=user, product=product).save()
+    product = get_object_or_404(Product, pk=pk)
+
+    # Check if the item is already in the cart
+    # This is the most important change
+    cart_item, created = cart.objects.get_or_create(user=user, product=product)
+
+    if not created:
+        # If it's not created, it already exists, so just increase quantity
+        cart_item.quantity += 1
+        cart_item.save()
+         # If it was 'created', the quantity defaults to 1 (from the model)
+         # So, we don't need to do anything else.
     return redirect("/cart")
 
 def show_cart(request):
     user = request.user
     cart_items = cart.objects.filter(user=user)
     amount = 0
+    shipping_amount = 40
     for p in cart_items:
-        value = p.quantity * p.product.discounted_price
-        amount = amount + value
-    totalamount = amount + 40
+        # value = p.quantity * p.product.discounted_price
+        amount = amount + p.total_cost
+    totalamount = amount + shipping_amount
     return render(request, 'app/addtocart.html', locals())
+
+
+def plus_cart(request):
+    if request.method == 'GET':
+        prod_id = request.GET['prod_id']    
+        c = cart.objects.get(Q(id=prod_id) & Q(user=request.user))
+        c.quantity += 1
+        c.save()
+        amount = 0
+        shipping_amount = 40
+        cart_items = cart.objects.filter(user=request.user)
+        for p in cart_items:
+            amount += p.total_cost
+        totalamount = amount + shipping_amount
+        data = {
+            'quantity': c.quantity,
+            'amount': amount,
+            'totalamount': totalamount
+        }
+        return JsonResponse(data)
+    
+def minus_cart(request):
+    if request.method == 'GET':
+        prod_id = request.GET['prod_id']
+        c = cart.objects.get(Q(id=prod_id) & Q(user=request.user))
+        c.quantity -= 1
+        c.save()
+        amount = 0
+        shipping_amount = 40
+        cart_items = cart.objects.filter(user=request.user)
+        for p in cart_items:
+            amount += p.total_cost
+        totalamount = amount + shipping_amount
+        data = {
+            'quantity': c.quantity,
+            'amount': amount,
+            'totalamount': totalamount
+        }
+        return JsonResponse(data)
+    
+def remove_cart(request):
+    if request.method == 'GET':
+        prod_id = request.GET['prod_id']
+        c = cart.objects.get(Q(id=prod_id) & Q(user=request.user))
+        c.delete()
+        amount = 0
+        shipping_amount = 40
+        cart_items = cart.objects.filter(user=request.user)
+        for p in cart_items:
+            amount += p.total_cost
+        totalamount = amount + shipping_amount
+        data = {
+            'amount': amount,
+            'totalamount': totalamount
+        }
+        return JsonResponse(data)

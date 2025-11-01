@@ -1,6 +1,7 @@
 from django.db import models
 
 from django.contrib.auth.models import User
+from django.shortcuts import get_object_or_404
 
 # Create your models here.
 
@@ -87,3 +88,6 @@ class cart(models.Model):
     @property
     def total_cost(self):
         return self.quantity * self.product.discounted_price
+    
+    def __str__(self):
+        return f"{self.quantity} of {self.product} for {self.user.username}"

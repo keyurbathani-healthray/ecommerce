@@ -15,10 +15,10 @@
   rel="stylesheet"
 />
 
-    <link rel="stylesheet" href="{% static 'app/owl.carousel.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'app/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'app/css/owl.carousel.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'app/css/all.min.css' %}" />
     <link rel="stylesheet" href="{% static 'app/css/password-field.css' %}" />
-    <link rel="stylesheet" href="{% static 'app/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'app/css/style.css' %}" />
     <title>{% block title %}Dairy products{% endblock %}</title>
   </head>
   <body>
@@ -110,7 +110,7 @@
 
     <!-- Cart -->
     <li class="nav-item mx-2">
-      <a href="#" class="nav-link text-white position-relative">
+      <a href="{% url 'show-cart' %}" class="nav-link text-white position-relative">
         <i class="fas fa-shopping-cart fs-5"></i>
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
           4
@@ -158,9 +158,9 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    <script src="{% static 'app/owl.carousel.min.js' %}"></script>
-    <script src="{% static 'app/all.min.js' %}"></script>
-    <script src="{% static 'app/myscript.js' %}"></script>
+    <script src="{% static 'app/js/owl.carousel.min.js' %}"></script>
+    <script src="{% static 'app/js/all.min.js' %}"></script>
+    <script src="{% static 'app/js/myscript.js' %}"></script>
     <script src="{% static 'app/js/password-toggle.js' %}"></script>
 
     {% django_browser_reload_script %}
