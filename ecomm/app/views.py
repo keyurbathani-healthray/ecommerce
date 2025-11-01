@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from .models import Product, Customer
+from .models import Product, Customer, cart
 from django.views import View
 from .forms import CustomerProfileForm, CustomerRegistrationForm, CustomerLoginForm, CustomPasswordChangeForm
 from django.contrib import messages
@@ -133,6 +133,21 @@ class update_address(View):
         else :
             messages.warning(request, '⚠️ Please correct the errors above.')
         return render(request, 'app/updateaddress.html', locals())
+    
+
+
+def delete_address(request, pk):
+      if request.method == 'POST':
+        address_to_delete = Customer.objects.get(pk=pk)
+        address_to_delete.delete()
+        # Redirect back to the address list page
+        return redirect('customer-address')
+    
+    # If it's a GET request, just redirect back.
+    # This prevents users from visiting the delete URL directly.
+      return redirect('customer-address')
+
+
 
 # ✅ Logout View
 def customer_logout(request):
@@ -140,3 +155,21 @@ def customer_logout(request):
     # messages.success(request, '👋 You have been logged out successfully.')
     # Redirect to the named home URL after logout
     return redirect('home')  # Redirect to home after logout
+
+
+
+def add_to_cart(request, pk):
+    user = request.user
+    product = Product.objects.get(pk=pk)
+    cart(user=user, product=product).save()
+    return redirect("/cart")
+
+def show_cart(request):
+    user = request.user
+    cart_items = cart.objects.filter(user=user)
+    amount = 0
+    for p in cart_items:
+        value = p.quantity * p.product.discounted_price
+        amount = amount + value
+    totalamount = amount + 40
+    return render(request, 'app/addtocart.html', locals())

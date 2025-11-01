@@ -23,15 +23,16 @@
                 <ul class="fs-5" style="font-family: Rajdhani;">
                     <li>{{ product.description }}</li>
                 </ul>
-                <div class="buttons row flex" style="font-family: Rajdhani;">
-                    <button type="submit"
-                            class="d-grid gap-2 btn1 btn btn-danger p-1 m-1 btn-lg text-decoration-none text-white">
-                        Add to Cart
-                    </button>
-                    <div class="btn btn-dark p-1 m-1 btn-lg">
-                        <a href="#" class="text-decoration-none text-white">Buy Now</a>
-                    </div>
-                </div>
+            <div class="buttons row flex" style="font-family: Rajdhani;">
+    <a href="{% url 'add-to-cart' product.id %}"
+       class="d-grid gap-2 btn1 btn btn-danger p-1 m-1 btn-lg text-decoration-none text-white">
+        Add to Cart
+    </a>
+    
+    <a href="#" class="btn btn-dark p-1 m-1 btn-lg text-decoration-none text-white">
+        Buy Now
+    </a>
+</div>
             </div>
         </div>
     </div>
