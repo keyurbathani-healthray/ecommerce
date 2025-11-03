@@ -151,3 +151,7 @@ AUTHENTICATION_BACKENDS = [
     'app.backends.EmailOrUsernameModelBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
+
+Razor_KEY_ID = 'rzp_test_RbHEGAnfXfDDMD'
+Razor_KEY_SECRET = 'NaBMtFdJtC4TE2OFQNFaKC99'

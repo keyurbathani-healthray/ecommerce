@@ -188,6 +188,18 @@ def show_cart(request):
     return render(request, 'app/addtocart.html', locals())
 
 
+def checkout(request):
+    user = request.user
+    add = Customer.objects.filter(user=user)
+    cart_items = cart.objects.filter(user=user)
+    amount = 0
+    shipping_amount = 40
+    for p in cart_items:
+        amount += p.total_cost
+    totalamount = amount + shipping_amount
+    return render(request, 'app/checkout.html', locals())
+
+
 def plus_cart(request):
     if request.method == 'GET':
         prod_id = request.GET['prod_id']    

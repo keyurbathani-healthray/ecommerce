@@ -1,0 +1,117 @@
+{% extends 'app/layout.html' %}
+{% load static %}
+{% block title %}checkout{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    {% if messages %}
+        {% for msg in messages %}
+        <div class="alert alert-danger" role="alert">
+            {{msg}}
+        </div>
+        {% endfor %}
+    {% endif %}
+    <div class="row mt-5">
+        <div class="col-sm-6">
+            <h4>Order Summary</h4>
+            <hr>
+            {% for item in cart_items %}
+            <div class="card mb-2">
+                <div class="card-body">
+                    <h5>Product: {{item.product.title}}</h5>
+                    <p>Quantity: {{item.quantity}}</p>
+                    <p class="fw-bold">Price: {{item.product.discounted_price}}</p>
+                </div>
+            </div>
+            {% endfor %}
+            <p class="fw-bold">Total Cost + Rs. 40(Fixed Shipping amount) = {{totalamount}}</p>
+
+            <div>
+                terms and condition  : Lorem ipsum dolor sit amet consectetur adipisicing elit. Quod optio vel id rem, autem similique aspernatur officiis alias! Blanditiis atque deleniti, odit laboriosam accusamus voluptas quasi autem reprehenderit ut quis.
+            </div>
+
+            </div>
+    <div class="col-sm-4 offset-sm-1">
+        <h4>Select Shipping Address</h4>
+        <hr>
+        <form method="post" id="myform">
+            {% csrf_token %}
+            {% for ad in add %}
+            <div class="card">
+                <div class="card-body">
+                    <h5>{{ad.name}}</h5>
+                    <p>Mobile : {{ad.mobile}}</p>
+                    <p>{{ad.locality}} {{ad.city}} {{ad.state}} - {{ad.zipcode}}</p>
+                </div>
+            </div>
+           <div class="form-check mt-2 mb-5">
+    <input class="form-check-input border border-dark" type="radio" name="custid" id="custadd{{forloop.counter}}" value="{{ad.id}}">
+    <label class="form-check-label fw-bold" for="custadd{{forloop.counter}}">
+        Address: {{forloop.counter}} </label>
+    </div>
+            {% endfor %}
+
+            <div class="form-check mb-3">
+                <label for="totamount" class="form-label">Total Amount</label>
+                <input type="number" class="form-control" name="totamount" value={{totalamount}} readonly>
+            </div>
+            <div class="text-end">
+                {% comment %} <button type="submit" class="btn btn-warning mt-3 px-5 fw-bold">Continue</button> {% endcomment %}
+                <button id="rzp-button1" type="submit" class="btn btn-warning mt-3 px-5 fw-bold">Payment</button>
+            </div>
+        </form>
+    </div>
+</div>
+</div>
+{% endblock %}
+
+{% comment %} {% block payment-gateway %}
+
+<button id="rzp-button1">Pay</button>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    "key": "rzp_test_RbHEGAnfXfDDMD", // Enter the Key ID generated from the Dashboard
+    "amount": "50000", // Amount is in currency subunits.
+    "currency": "<currency>",
+    "name": "Acme Corp", //your business name
+    "description": "Test Transaction",
+    "image": "https://example.com/your_logo",
+    "order_id": "order_9A33XWu170gUtm", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    "handler": function (response){
+        alert(response.razorpay_payment_id);
+        alert(response.razorpay_order_id);
+        alert(response.razorpay_signature)
+    },
+    "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
+        "name": "<name>", //your customer's name
+        "email": "<email>", 
+        "contact": "<phone>"  //Provide the customer's phone number for better conversion rates 
+    },
+    "notes": {
+        "address": "Razorpay Corporate Office"
+    },
+    "theme": {
+        "color": "#3399cc"
+    }
+};
+var rzp1 = new Razorpay(options);
+rzp1.on('payment.failed', function (response){
+        alert(response.error.code);
+        alert(response.error.description);
+        alert(response.error.source);
+        alert(response.error.step);
+        alert(response.error.reason);
+        alert(response.error.metadata.order_id);
+        alert(response.error.metadata.payment_id);
+});
+document.getElementById('rzp-button1').onclick = function(e){
+    rzp1.open();
+    e.preventDefault();
+}
+</script>
+
+
+
+{% endblock %} {% endcomment %}
