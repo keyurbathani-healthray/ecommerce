@@ -191,6 +191,10 @@ def show_cart(request):
 
 
 def checkout(request):
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Please log in to proceed with checkout.')
+        return redirect('customer-login')
+    
     user = request.user
     add = Customer.objects.filter(user=user)
     cart_items = cart.objects.filter(user=user)
@@ -208,8 +212,8 @@ def checkout(request):
     }
     payment_response = client.order.create(data=data)
     print(payment_response)
-    # Sample response:
-    {'amount': 25600, 'amount_due': 25600, 'amount_paid': 0, 'attempts': 0, 'created_at': 1762246256, 'currency': 'INR', 'entity': 'order', 'id': 'order_RbbSoOOag4InGB', 'notes': [], 'offer_id': None, 'receipt': 'order_rcptid_12', 'status': 'created'}
+    #  Sample response:
+    # {'amount': 25600, 'amount_due': 25600, 'amount_paid': 0, 'attempts': 0, 'created_at': 1762246256, 'currency': 'INR', 'entity': 'order', 'id': 'order_RbbSoOOag4InGB', 'notes': [], 'offer_id': None, 'receipt': 'order_rcptid_12', 'status': 'created'}
     order_id = payment_response['id']
     order_status = payment_response['status']
     if order_status == 'created':
@@ -223,31 +227,61 @@ def checkout(request):
     return render(request, 'app/checkout.html', locals())
 
 def payment_done(request):
-    user = request.user
+    # Get payment details from URL parameters
     cust_id = request.GET.get('cust_id')
     order_id = request.GET.get('order_id')
     payment_id = request.GET.get('payment_id')
-    customer = Customer.objects.get(id=cust_id)
-    payment = Payment.objects.get(razorpay_order_id=order_id)
-    payment.razorpay_payment_id = payment_id
-    payment.razorpay_payment_status = 'paid'
-    payment.paid = True
-    payment.save()
-    cart_items = cart.objects.filter(user=user)
-    for c in cart_items:
-        OrderPlaced(
-            user=user,
-            customer=customer,
-            product=c.product,
-            quantity=c.quantity,
-            payment=payment
-        ).save()
-        c.delete()
-    return redirect('orders')
+    
+    # Validate required parameters
+    if not cust_id or not order_id or not payment_id:
+        messages.error(request, 'Invalid payment information.')
+        return redirect('checkout')
+    
+    try:
+        # Get the payment record - this has the user who initiated the payment
+        payment = Payment.objects.get(razorpay_order_id=order_id)
+        user = payment.user  # Get user from payment record, not from request
+        
+        # Validate customer address
+        customer = Customer.objects.get(id=cust_id, user=user)
+        
+        # Update payment status
+        payment.razorpay_payment_id = payment_id
+        payment.razorpay_payment_status = 'paid'
+        payment.paid = True
+        payment.save()
+        
+        # Process cart items and create orders
+        cart_items = cart.objects.filter(user=user)
+        for c in cart_items:
+            OrderPlaced(
+                user=user,
+                customer=customer,
+                product=c.product,
+                quantity=c.quantity,
+                payment=payment
+            ).save()
+            c.delete()
+        
+        messages.success(request, 'Payment successful! Your order has been placed.')
+        return redirect('orders')
+        
+    except Payment.DoesNotExist:
+        messages.error(request, 'Payment record not found.')
+        return redirect('checkout')
+    except Customer.DoesNotExist:
+        messages.error(request, 'Invalid customer address.')
+        return redirect('checkout')
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect('checkout')
 
 def orders(request):
-    # op = OrderPlaced.objects.filter(user=request.user)
-    return render(request, 'app/orders.html')
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Please log in to view your orders.')
+        return redirect('customer-login')
+    op = OrderPlaced.objects.filter(user=request.user)
+    return render(request, 'app/orders.html', locals())
 
 def plus_cart(request):
     if request.method == 'GET':
