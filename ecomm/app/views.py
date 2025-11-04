@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from .models import Product, Customer, cart , get_object_or_404
+from .models import OrderPlaced, Payment, Product, Customer, cart , get_object_or_404
 from django.views import View
 from .forms import CustomerProfileForm, CustomerRegistrationForm, CustomerLoginForm, CustomPasswordChangeForm
 from django.contrib import messages
@@ -9,6 +9,8 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 # from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+import razorpay
+from django.conf import settings
 
 
 # Create your views here.
@@ -194,11 +196,91 @@ def checkout(request):
     cart_items = cart.objects.filter(user=user)
     amount = 0
     shipping_amount = 40
+    totalamount = 0
+    order_id = None
+    razoramount = 0
+    
     for p in cart_items:
         amount += p.total_cost
     totalamount = amount + shipping_amount
+    razoramount = int(totalamount * 100)  # Razorpay amount should be in paise
+    
+    # Only create Razorpay order when form is submitted (POST request)
+    if request.method == 'POST':
+        client = razorpay.Client(auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
+        data = {
+            "amount": razoramount,
+            "currency": "INR",
+            "receipt": "order_rcptid_12"
+        }
+        payment_response = client.order.create(data=data)
+        print(payment_response)
+        order_id = payment_response['id']
+        order_status = payment_response['status']
+        if order_status == 'created':
+            payment = Payment(
+                user=user,
+                amount=totalamount,
+                razorpay_order_id=order_id,
+                razorpay_payment_status=order_status
+            )
+            payment.save()
+        # Return the order details as JSON for AJAX request
+        return JsonResponse({
+            'order_id': order_id,
+            'razorpay_key': settings.RAZOR_KEY_ID,
+            'amount': razoramount,
+            'user_name': user.get_full_name() or user.username,
+            'user_email': user.email,
+        })
+    
     return render(request, 'app/checkout.html', locals())
 
+def payment_done(request):
+    user = request.user
+    cust_id = request.GET.get('cust_id')
+    order_id = request.GET.get('order_id')
+    payment_id = request.GET.get('payment_id')
+    
+    # Validate inputs
+    if not cust_id or not order_id or not payment_id:
+        messages.error(request, 'Invalid payment data received.')
+        return redirect('checkout')
+    
+    try:
+        customer = Customer.objects.get(id=cust_id)
+    except Customer.DoesNotExist:
+        messages.error(request, 'Customer address not found.')
+        return redirect('checkout')
+    
+    try:
+        payment = Payment.objects.get(razorpay_order_id=order_id)
+    except Payment.DoesNotExist:
+        messages.error(request, f'Payment record not found for order: {order_id}')
+        return redirect('checkout')
+    
+    payment.razorpay_payment_id = payment_id
+    payment.razorpay_payment_status = 'paid'
+    payment.paid = True
+    payment.save()
+    
+    cart_items = cart.objects.filter(user=user)
+    for c in cart_items:
+        OrderPlaced(
+            user=user,
+            customer=customer,
+            product=c.product,
+            quantity=c.quantity,
+            payment=payment
+        ).save()
+        c.delete()
+    
+    messages.success(request, 'Payment successful! Your order has been placed.')
+    return redirect('orders')
+
+def orders(request):
+    # op = OrderPlaced.objects.filter(user=request.user)
+    return render(request, 'app/orders.html')
 
 def plus_cart(request):
     if request.method == 'GET':

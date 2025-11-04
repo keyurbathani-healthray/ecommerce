@@ -17,12 +17,13 @@ urlpatterns = [
    path('add-to-cart/<int:pk>/', views.add_to_cart, name='add-to-cart'),
    path('cart/', views.show_cart, name='show-cart'),
    path('checkout/', views.checkout, name='checkout'),
+   path('paymentdone/', views.payment_done, name='paymentdone'),
+   path('orders/', views.orders, name='orders'),
 
 
-      path('pluscart/', views.plus_cart, name='pluscart'),
-     path('minuscart/', views.minus_cart, name='minuscart'),
-     path('removecart/', views.remove_cart, name='removecart'),
-
+   path('pluscart/', views.plus_cart, name='pluscart'),
+   path('minuscart/', views.minus_cart, name='minuscart'),
+   path('removecart/', views.remove_cart, name='removecart'),
 
 
    # Authentication URLs
