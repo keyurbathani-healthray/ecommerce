@@ -1,2 +1,201 @@
-<div>Welcome to order page</div>
+{% extends 'app/layout.html' %}
+{% load static %}
+{% block title %}My Orders{% endblock title %}
 
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-lg-2 col-md-3 mb-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-center mb-3">
+                        <i class="fas fa-user-circle"></i> Welcome
+                    </h5>
+                    <p class="text-center text-capitalize fw-bold text-primary">{{request.user}}</p>
+                    <hr>
+                    <ul class="list-unstyled">
+                        <li class="d-grid mb-2">
+                            <a href="{% url 'orders' %}" class="btn btn-primary active">
+                                <i class="fas fa-shopping-bag"></i> My Orders
+                            </a>
+                        </li>
+                        <li class="d-grid mb-2">
+                            <a href="{% url 'customer-profile' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-user-edit"></i> Profile
+                            </a>
+                        </li>
+                        <li class="d-grid">
+                            <a href="{% url 'customer-address' %}" class="btn btn-outline-primary">
+                                <i class="fas fa-map-marker-alt"></i> Addresses
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Orders Section -->
+        <div class="col-lg-10 col-md-9">
+            <h2 class="mb-4">
+                <i class="fas fa-box-open"></i> My Orders
+            </h2>
+            
+            {% if op %}
+                {% for order in op %}
+                <div class="card shadow-sm mb-4 border-0">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <!-- Product Image -->
+                            <div class="col-lg-3 col-md-4 text-center mb-3 mb-md-0">
+                                <img src="{{order.product.product_image.url}}" 
+                                     class="img-fluid rounded shadow" 
+                                     alt="{{order.product.title}}" 
+                                     style="max-height: 200px; object-fit: cover;">
+                            </div>
+
+                            <!-- Product Details -->
+                            <div class="col-lg-5 col-md-4 mb-3 mb-md-0">
+                                <h5 class="card-title text-primary fw-bold">{{order.product.title}}</h5>
+                                <p class="mb-2">
+                                    <i class="fas fa-tag text-success"></i> 
+                                    <strong>Price:</strong> 
+                                    <span class="text-success fs-5">₹{{order.product.discounted_price}}</span>
+                                </p>
+                                <p class="mb-2">
+                                    <i class="fas fa-boxes text-info"></i> 
+                                    <strong>Quantity:</strong> 
+                                    <span class="badge bg-info">{{order.quantity}}</span>
+                                </p>
+                                <p class="mb-2">
+                                    <i class="fas fa-calculator text-warning"></i> 
+                                    <strong>Total Cost:</strong> 
+                                    <span class="text-danger fw-bold fs-5">₹{{order.total_cost}}</span>
+                                </p>
+                                <p class="mb-2 text-muted">
+                                    <i class="fas fa-calendar-alt"></i> 
+                                    <small>Ordered on: {{order.ordered_date|date:"d M, Y"}}</small>
+                                </p>
+                                <p class="mb-2 text-muted">
+                                    <i class="fas fa-phone-alt text-success"></i> 
+                                    <small><strong>Mobile:</strong> {{order.customer.mobile}}</small>
+                                </p>
+                                <p class="mb-0 text-muted">
+                                    <i class="fas fa-map-marker-alt"></i> 
+                                    <small><strong>Deliver to:</strong> {{order.customer.name}}, {{order.customer.locality}}, {{order.customer.city}}, {{order.customer.state}} - {{order.customer.zipcode}}</small>
+                                </p>
+                            </div>
+
+                            <!-- Order Status & Progress -->
+                            <div class="col-lg-4 col-md-4">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body">
+                                        <h6 class="card-subtitle mb-3 text-center">
+                                            <i class="fas fa-shipping-fast"></i> Order Status
+                                        </h6>
+                                        
+                                        <p class="text-center mb-3">
+                                            {% if order.status == 'Pending' %}
+                                                <span class="badge bg-secondary fs-6">
+                                                    <i class="fas fa-clock"></i> Pending
+                                                </span>
+                                            {% elif order.status == 'Accepted' %}
+                                                <span class="badge bg-primary fs-6">
+                                                    <i class="fas fa-check-circle"></i> Accepted
+                                                </span>
+                                            {% elif order.status == 'Packed' %}
+                                                <span class="badge bg-info fs-6">
+                                                    <i class="fas fa-box"></i> Packed
+                                                </span>
+                                            {% elif order.status == 'On The Way' %}
+                                                <span class="badge bg-warning text-dark fs-6">
+                                                    <i class="fas fa-truck"></i> On The Way
+                                                </span>
+                                            {% elif order.status == 'Delivered' %}
+                                                <span class="badge bg-success fs-6">
+                                                    <i class="fas fa-check-double"></i> Delivered
+                                                </span>
+                                            {% elif order.status == 'Cancelled' %}
+                                                <span class="badge bg-danger fs-6">
+                                                    <i class="fas fa-times-circle"></i> Cancelled
+                                                </span>
+                                            {% endif %}
+                                        </p>
+
+                                        <!-- Progress Bar -->
+                                        {% if order.status == 'Pending' %}
+                                            <div class="progress" style="height: 25px;">
+                                                <div class="progress-bar bg-secondary" role="progressbar" 
+                                                     style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
+                                                    10%
+                                                </div>
+                                            </div>
+                                            <small class="text-muted d-block text-center mt-2">Order placed</small>
+                                        {% elif order.status == 'Accepted' %}
+                                            <div class="progress" style="height: 25px;">
+                                                <div class="progress-bar" role="progressbar" 
+                                                     style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                                    25%
+                                                </div>
+                                            </div>
+                                            <small class="text-muted d-block text-center mt-2">Order confirmed</small>
+                                        {% elif order.status == 'Packed' %}
+                                            <div class="progress" style="height: 25px;">
+                                                <div class="progress-bar bg-info" role="progressbar" 
+                                                     style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+                                                    50%
+                                                </div>
+                                            </div>
+                                            <small class="text-muted d-block text-center mt-2">Ready for dispatch</small>
+                                        {% elif order.status == 'On The Way' %}
+                                            <div class="progress" style="height: 25px;">
+                                                <div class="progress-bar bg-warning" role="progressbar" 
+                                                     style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
+                                                    75%
+                                                </div>
+                                            </div>
+                                            <small class="text-muted d-block text-center mt-2">Out for delivery</small>
+                                        {% elif order.status == 'Delivered' %}
+                                            <div class="progress" style="height: 25px;">
+                                                <div class="progress-bar bg-success" role="progressbar" 
+                                                     style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                                    100%
+                                                </div>
+                                            </div>
+                                            <small class="text-success d-block text-center mt-2 fw-bold">
+                                                <i class="fas fa-check"></i> Completed
+                                            </small>
+                                        {% elif order.status == 'Cancelled' %}
+                                            <div class="progress" style="height: 25px;">
+                                                <div class="progress-bar bg-danger" role="progressbar" 
+                                                     style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                                                    Cancelled
+                                                </div>
+                                            </div>
+                                            <small class="text-danger d-block text-center mt-2">Order cancelled</small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- Empty State -->
+                <div class="card shadow-sm border-0 text-center py-5">
+                    <div class="card-body">
+                        <i class="fas fa-shopping-bag fa-5x text-muted mb-3"></i>
+                        <h4 class="text-muted">No Orders Yet!</h4>
+                        <p class="text-muted">You haven't placed any orders yet. Start shopping now!</p>
+                        <a href="{% url 'home' %}" class="btn btn-primary btn-lg mt-3">
+                            <i class="fas fa-shopping-cart"></i> Start Shopping
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock content %}
