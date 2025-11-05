@@ -25,7 +25,7 @@ $(document).ready(function () {
 
   $(document).on("click", ".plus-cart", function () {
     var id = $(this).attr("pid").toString();
-    var eml = this.parentNode.children[2];
+    var eml = this.parentNode.children[1];
 
     $.ajax({
       type: "GET",
@@ -43,7 +43,7 @@ $(document).ready(function () {
 
   $(document).on("click", ".minus-cart", function () {
     var id = $(this).attr("pid").toString();
-    var eml = this.parentNode.children[2];
+    var eml = this.parentNode.children[1];
     $.ajax({
       type: "GET",
       url: "/minuscart",

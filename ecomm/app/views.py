@@ -343,8 +343,9 @@ def minus_cart(request):
     if request.method == 'GET':
         prod_id = request.GET['prod_id']
         c = cart.objects.get(Q(id=prod_id) & Q(user=request.user))
-        c.quantity -= 1
-        c.save()
+        if c.quantity > 1:
+            c.quantity -= 1
+            c.save()
         amount = 0
         shipping_amount = 40
         cart_items = cart.objects.filter(user=request.user)

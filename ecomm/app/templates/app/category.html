@@ -1,36 +1,137 @@
 {% extends 'app/layout.html' %}
 {% load static %}
-{% block title %}category{% endblock %}
+{% block title %}Category - Products{% endblock %}
 {% block content %}
-    <div class="container my-5">
+
+<!-- Page Header -->
+<div class="bg-light py-4 mb-4">
+    <div class="container">
         <div class="row">
-            <div class="col-sm-3">
-                <div class="list-group">
-                    {% for val in title %}
-                        <a href="{% url 'category-title' val.title %}"
-                           class="list-group-item list-group-item-action"
-                           aria-current="true">{{ val.title }}</a>
-                    {% endfor %}
-                </div>
-            </div>
-            <div class="col-sm-9">
-                <div class="row">
-                    {% for prod in product %}
-                        <div class="col text-center mb-4">
-                            <a href="{% url 'product_details' prod.id %}" class="btn">
-                                <div>
-                                    <img src="{{ prod.product_image.url }}" width="300px" height="200px" />
-                                    <div class="fw-bold">{{ prod.title }}</div>
-                                    <div class="fw-bold text-danger">
-                                        Rs.{{ prod.discounted_price }}/-
-                                        <small class="fw-light text-decoration-line-through">{{ prod.selling_price }}</small>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    {% endfor %}
-                </div>
+            <div class="col-12">
+                <h1 class="display-6 fw-bold text-dark mb-2">
+                    <i class="fas fa-th-large text-success me-2"></i>Browse Products
+                </h1>
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none">Home</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Categories</li>
+                    </ol>
+                </nav>
             </div>
         </div>
     </div>
+</div>
+
+<div class="container my-5">
+    <div class="row g-4">
+        <!-- Sidebar - Categories -->
+        <div class="col-lg-3 col-md-4">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+                <div class="card-header bg-success text-white py-3">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2"></i>Categories
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        {% for val in title %}
+                            <a href="{% url 'category-title' val.title %}"
+                               class="list-group-item list-group-item-action d-flex justify-content-between align-items-center py-3 border-start-0 border-end-0"
+                               aria-current="true">
+                                <span><i class="fas fa-angle-right me-2 text-success"></i>{{ val.title }}</span>
+                                <span class="badge bg-success rounded-pill">
+                                    <i class="fas fa-arrow-right"></i>
+                                </span>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Grid -->
+        <div class="col-lg-9 col-md-8">
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0 text-secondary">
+                            <i class="fas fa-box-open me-2"></i>Available Products
+                        </h4>
+                        <span class="badge bg-primary fs-6">{{ product|length }} Items</span>
+                    </div>
+                    <hr class="mt-2">
+                </div>
+            </div>
+
+            {% if product %}
+                <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
+                    {% for prod in product %}
+                        <div class="col">
+                            <div class="card h-100 shadow-sm border-0 product-card">
+                                <a href="{% url 'product_details' prod.id %}" class="text-decoration-none">
+                                    <!-- Product Image -->
+                                    <div class="position-relative overflow-hidden bg-light">
+                                        <img src="{{ prod.product_image.url }}" 
+                                             class="card-img-top object-fit-cover" 
+                                             style="height: 250px; width: 100%;"
+                                             alt="{{ prod.title }}" />
+                                        <div class="position-absolute top-0 end-0 m-2">
+                                            <span class="badge bg-danger">Sale</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Product Details -->
+                                    <div class="card-body text-center">
+                                        <h6 class="card-title fw-bold text-dark mb-3" style="min-height: 2.5rem;">
+                                            {{ prod.title }}
+                                        </h6>
+                                        
+                                        <!-- Price Section -->
+                                        <div class="mb-3">
+                                            <h5 class="text-success fw-bold mb-1">
+                                                <i class="fas fa-rupee-sign"></i> {{ prod.discounted_price }}/-
+                                            </h5>
+                                            <small class="text-muted text-decoration-line-through">
+                                                <i class="fas fa-rupee-sign"></i> {{ prod.selling_price }}
+                                            </small>
+                                            {% if prod.selling_price > prod.discounted_price %}
+                                                <span class="badge bg-warning text-dark ms-2">
+                                                    {% widthratio prod.selling_price|add:0|add:prod.discounted_price|floatformat:0|add:"0" prod.selling_price 100 %}% OFF
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <!-- Card Footer -->
+                                    <div class="card-footer bg-transparent border-0 text-center pb-3">
+                                        <span class="btn btn-outline-success btn-sm w-100">
+                                            <i class="fas fa-eye me-2"></i>View Details
+                                        </span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <!-- No Products Found -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm text-center py-5">
+                            <div class="card-body">
+                                <i class="fas fa-inbox fa-5x text-muted mb-4"></i>
+                                <h3 class="text-muted mb-3">No Products Found</h3>
+                                <p class="text-muted mb-4">We couldn't find any products in this category.</p>
+                                <a href="{% url 'home' %}" class="btn btn-success">
+                                    <i class="fas fa-home me-2"></i>Back to Home
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 {% endblock content %}
