@@ -3,74 +3,189 @@
 {% block title %}Customer Registration{% endblock %}
 {% block content %}
 
-<div class="bg-light min-vh-100 py-5">
-
-<div class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-8 col-lg-6">
-      <div class="card shadow-lg border-0 rounded-4">
-        <div class="card-body p-4 p-md-5">
+<!-- Registration Section with Gradient Background -->
+<div class="bg-light min-vh-100 d-flex align-items-center py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-md-8 col-lg-7 col-xl-6">
+        
+        <!-- Registration Card -->
+        <div class="card border-0 shadow-lg rounded-4">
           
-          <!-- Header -->
-          <div class="text-center mb-4 pb-2">
+          <!-- Card Header with Icon -->
+          <div class="card-header bg-success text-white text-center py-4 rounded-top-4 border-0">
             <div class="mb-3">
-              <span class="fs-1">🧾</span>
+              <i class="fas fa-user-plus fa-4x"></i>
             </div>
             <h3 class="fw-bold mb-2">Create Your Account</h3>
-            <p class="text-muted small mb-0">Please fill in your details below</p>
+            <p class="mb-0 opacity-75">Join us today and start shopping!</p>
           </div>
 
-          <!-- Messages -->
-          {% if messages %}
-            {% for message in messages %}
-              <div class="alert alert-{{ message.tags }} alert-dismissible fade show mb-4" role="alert">
-                {{ message }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-              </div>
-            {% endfor %}
-          {% endif %}
-
-          <!-- Form -->
-          <form method="POST" novalidate class="needs-validation">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-
-            {% for field in form %}
-              <div class="mb-4">
-                <label class="form-label fw-semibold text-dark">{{ field.label }}</label>
-                <div class="w-100">
-                  {% if 'password' in field.name %}
-                    <div class="password-field-container">
-                      {{ field }}
-                      <span class="password-toggle">
-                        <i class="far fa-eye"></i>
-                      </span>
-                    </div>
-                  {% else %}
-                    {{ field }}
-                  {% endif %}
+          <!-- Card Body -->
+          <div class="card-body p-4 p-md-5">
+            
+            <!-- Messages Display -->
+            {% if messages %}
+              {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm" role="alert">
+                  <i class="fas fa-info-circle me-2"></i>{{ message }}
+                  <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-                {% for error in field.errors %}
-                  <div class="text-danger small mt-2">{{ error }}</div>
-                {% endfor %}
+              {% endfor %}
+            {% endif %}
+
+            <!-- Registration Form -->
+            <form method="POST" novalidate class="needs-validation">
+              {% csrf_token %}
+              
+              <!-- Non-field Errors -->
+              {% if form.non_field_errors %}
+                <div class="alert alert-danger border-0 shadow-sm mb-4">
+                  <i class="fas fa-exclamation-triangle me-2"></i>
+                  {{ form.non_field_errors }}
+                </div>
+              {% endif %}
+
+              <!-- Form Fields -->
+              {% for field in form %}
+                <div class="mb-4">
+                  <label class="form-label fw-semibold text-dark">
+                    {% if field.name == 'username' %}
+                      <i class="fas fa-user-circle me-2 text-success"></i>
+                    {% elif field.name == 'name' %}
+                      <i class="fas fa-id-card me-2 text-success"></i>
+                    {% elif field.name == 'email' %}
+                      <i class="fas fa-envelope me-2 text-success"></i>
+                    {% elif 'password' in field.name %}
+                      <i class="fas fa-lock me-2 text-success"></i>
+                    {% else %}
+                      <i class="fas fa-edit me-2 text-success"></i>
+                    {% endif %}
+                    {{ field.label }}
+                  </label>
+                  
+                  <div class="w-100">
+                    {% if 'password' in field.name %}
+                      <div class="password-field-container">
+                        <div class="input-group">
+                          {{ field }}
+                          <span class="input-group-text password-toggle" role="button" style="cursor: pointer;">
+                            <i class="far fa-eye"></i>
+                          </span>
+                        </div>
+                      </div>
+                      {% if 'password1' in field.name %}
+                        <small class="text-muted d-block mt-2">
+                          <i class="fas fa-info-circle me-1"></i>
+                          Password must be at least 8 characters long
+                        </small>
+                      {% elif 'password2' in field.name %}
+                        <small class="text-muted d-block mt-2">
+                          <i class="fas fa-info-circle me-1"></i>
+                          Re-enter your password for confirmation
+                        </small>
+                      {% endif %}
+                    {% else %}
+                      {{ field }}
+                    {% endif %}
+                  </div>
+                  
+                  <!-- Field Errors -->
+                  {% for error in field.errors %}
+                    <div class="text-danger small mt-2">
+                      <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                    </div>
+                  {% endfor %}
+                </div>
+              {% endfor %}
+
+              <!-- Terms and Conditions -->
+              <div class="alert alert-info border-0 bg-info bg-opacity-10 mb-4">
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="termsCheck" required>
+                  <label class="form-check-label small" for="termsCheck">
+                    I agree to the <a href="#" class="text-decoration-none">Terms and Conditions</a> 
+                    and <a href="#" class="text-decoration-none">Privacy Policy</a>
+                  </label>
+                </div>
               </div>
-            {% endfor %}
 
-            <div class="d-grid gap-2 mt-4 pt-2">
-              <button type="submit" class="btn btn-primary btn-lg shadow-sm">Register</button>
-            </div>
+              <!-- Register Button -->
+              <div class="d-grid gap-2 mb-4">
+                <button type="submit" class="btn btn-success btn-lg shadow-sm">
+                  <i class="fas fa-user-plus me-2"></i>Create Account
+                </button>
+              </div>
 
-            <p class="text-center mt-3 mb-0">
-           Already have an account? <a href="{% url 'customer-login' %}">Login here</a>
-           </p>
-          </form>
+              <!-- Divider -->
+              <div class="position-relative mb-4">
+                <hr class="text-muted">
+                <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">
+                  OR
+                </span>
+              </div>
 
+              <!-- Login Link -->
+              <div class="text-center">
+                <p class="mb-0">
+                  Already have an account? 
+                  <a href="{% url 'customer-login' %}" class="text-decoration-none fw-semibold">
+                    <i class="fas fa-sign-in-alt me-1"></i>Login here
+                  </a>
+                </p>
+              </div>
+            </form>
+          </div>
+
+          <!-- Card Footer -->
+          <div class="card-footer bg-light text-center py-3 border-0 rounded-bottom-4">
+            <small class="text-muted">
+              <i class="fas fa-shield-alt me-1"></i>
+              Your information is safe and secure with us
+            </small>
+          </div>
         </div>
+
+        <!-- Benefits Section -->
+        <div class="row mt-4 g-3">
+          <div class="col-md-4">
+            <div class="text-center p-3 bg-white rounded shadow-sm">
+              <i class="fas fa-shipping-fast fs-3 text-success mb-2"></i>
+              <p class="small mb-0 fw-semibold">Free Delivery</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center p-3 bg-white rounded shadow-sm">
+              <i class="fas fa-tags fs-3 text-success mb-2"></i>
+              <p class="small mb-0 fw-semibold">Special Offers</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="text-center p-3 bg-white rounded shadow-sm">
+              <i class="fas fa-headset fs-3 text-success mb-2"></i>
+              <p class="small mb-0 fw-semibold">24/7 Support</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="text-center mt-4">
+          <p class="text-muted mb-2">
+            <i class="fas fa-question-circle me-1"></i>Need assistance?
+          </p>
+          <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'contactus' %}" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-envelope me-1"></i>Contact Us
+            </a>
+            <a href="{% url 'aboutus' %}" class="btn btn-sm btn-outline-secondary">
+              <i class="fas fa-info-circle me-1"></i>Learn More
+            </a>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
-</div>
-
 </div>
 
 {% endblock %}

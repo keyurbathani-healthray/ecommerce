@@ -101,10 +101,27 @@ class CustomerProfileForm(forms.ModelForm):
         model = Customer
         fields = ['name', 'locality', 'city', 'mobile', 'zipcode', 'state']
         widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control'}),
-            'locality': forms.TextInput(attrs={'class': 'form-control'}),
-            'city': forms.TextInput(attrs={'class': 'form-control'}),   
-            'mobile': forms.TextInput(attrs={'class': 'form-control'}),
-            'zipcode': forms.TextInput(attrs={'class': 'form-control'}),
-            'state': forms.Select(attrs={'class': 'form-control'}),
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your full name'
+            }),
+            'locality': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your locality/area'
+            }),
+            'city': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your city'
+            }),   
+            'mobile': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your mobile number'
+            }),
+            'zipcode': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Enter your zipcode/pincode'
+            }),
+            'state': forms.Select(attrs={
+                'class': 'form-control'
+            }),
         }

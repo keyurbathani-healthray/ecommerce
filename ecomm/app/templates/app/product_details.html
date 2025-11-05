@@ -4,35 +4,199 @@
     product details
 {% endblock title %}
 {% block content %}
-    <div class="container">
-        <div class="row flex justify-content-between">
-            <div class="img2 col-lg-5 mt-5">
-                <img src="{{ product.product_image.url }}"
-                     class="image col-xs-6 col-sm-12 col-lg-12 mt-3 text-sm-center w-100 h-75"
-                     alt="">
+    <!-- Breadcrumb Navigation -->
+    <nav aria-label="breadcrumb" class="bg-light">
+        <div class="container">
+            <ol class="breadcrumb py-3 mb-0">
+                <li class="breadcrumb-item"><a href="{% url 'home' %}" class="text-decoration-none"><i class="fas fa-home me-1"></i>Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'category' product.category %}" class="text-decoration-none">{{ product.get_category_display }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ product.title }}</li>
+            </ol>
+        </div>
+    </nav>
+
+    <!-- Product Details Section -->
+    <div class="container my-5">
+        <div class="row g-4">
+            <!-- Product Image Column -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body p-4">
+                        <div class="position-relative">
+                            <img src="{{ product.product_image.url }}"
+                                 class="img-fluid rounded"
+                                 alt="{{ product.title }}"
+                                 style="width: 100%; height: auto; max-height: 500px; object-fit: contain;">
+                            
+                            <!-- Discount Badge -->
+                            {% if product.selling_price > product.discounted_price %}
+                            <span class="position-absolute top-0 end-0 m-3 badge bg-danger fs-6 px-3 py-2">
+                                <i class="fas fa-tag me-1"></i>
+                                {% widthratio product.selling_price|add:"0"|floatformat:"0"|add:"0" product.discounted_price|add:"0"|floatformat:"0"|add:"0" 100 as discount %}
+                                {{ discount|floatformat:"0" }}% OFF
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Product Info -->
+                <div class="card border-0 shadow-sm mt-3">
+                    <div class="card-body">
+                        <div class="row text-center g-3">
+                            <div class="col-4">
+                                <div class="p-3 bg-success bg-opacity-10 rounded">
+                                    <i class="fas fa-truck fs-3 text-success mb-2"></i>
+                                    <p class="mb-0 small fw-semibold">Free Delivery</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-3 bg-primary bg-opacity-10 rounded">
+                                    <i class="fas fa-shield-alt fs-3 text-primary mb-2"></i>
+                                    <p class="mb-0 small fw-semibold">100% Genuine</p>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="p-3 bg-warning bg-opacity-10 rounded">
+                                    <i class="fas fa-undo-alt fs-3 text-warning mb-2"></i>
+                                    <p class="mb-0 small fw-semibold">Easy Returns</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="productdetail col-lg-5">
-                <h1 style="font-family: Georgia; font-size: 50px;">{{ product.title }}</h1>
-                <h5>Rs.{{ product.discounted_price }}/-</h5>
-                   <small class="text-decoration-line-through text-muted fs-5">
-                    <del>Rs. {{ product.selling_price }}/-</del>
-                </small>
-                <br>
-                <br>
-                <h4>Product Features</h4>
-                <ul class="fs-5" style="font-family: Rajdhani;">
-                    <li>{{ product.description }}</li>
-                </ul>
-            <div class="buttons row flex" style="font-family: Rajdhani;">
-    <a href="{% url 'add-to-cart' product.id %}"
-       class="d-grid gap-2 btn1 btn btn-danger p-1 m-1 btn-lg text-decoration-none text-white">
-        Add to Cart
-    </a>
-    
-    <a href="#" class="btn btn-dark p-1 m-1 btn-lg text-decoration-none text-white">
-        Buy Now
-    </a>
-</div>
+
+            <!-- Product Details Column -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <!-- Product Title -->
+                        <h1 class="display-5 fw-bold mb-3 text-dark">{{ product.title }}</h1>
+                        
+                        <!-- Product Category Badge -->
+                        <div class="mb-3">
+                            <span class="badge bg-secondary bg-opacity-25 text-dark px-3 py-2">
+                                <i class="fas fa-layer-group me-1"></i>{{ product.get_category_display }}
+                            </span>
+                        </div>
+
+                        <!-- Price Section -->
+                        <div class="mb-4 p-3 bg-light rounded">
+                            <div class="d-flex align-items-center gap-3">
+                                <h2 class="display-6 fw-bold text-success mb-0">
+                                    <i class="fas fa-rupee-sign"></i>{{ product.discounted_price }}
+                                </h2>
+                                <div>
+                                    <span class="text-decoration-line-through text-muted fs-5 d-block">
+                                        <i class="fas fa-rupee-sign"></i>{{ product.selling_price }}
+                                    </span>
+                                    {% if product.selling_price > product.discounted_price %}
+                                    <span class="text-success small fw-semibold">
+                                        You Save: <i class="fas fa-rupee-sign"></i>{% widthratio product.selling_price 1 1 as sp %}{% widthratio product.discounted_price 1 1 as dp %}{{ sp|add:"-"|add:dp }}
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <p class="text-muted small mb-0 mt-2">
+                                <i class="fas fa-info-circle me-1"></i>Inclusive of all taxes
+                            </p>
+                        </div>
+
+                        <!-- Product Features -->
+                        <div class="mb-4">
+                            <h4 class="fw-bold mb-3">
+                                <i class="fas fa-star text-warning me-2"></i>Product Features
+                            </h4>
+                            <div class="alert alert-info border-0 bg-info bg-opacity-10">
+                                <ul class="mb-0 ps-3">
+                                    <li class="fs-5 mb-2">{{ product.description }}</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Availability Status -->
+                        <div class="alert alert-success border-0 mb-4">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>In Stock</strong> - Ready to ship
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-3">
+                            <a href="{% url 'add-to-cart' product.id %}"
+                               class="btn btn-danger btn-lg shadow-sm">
+                                <i class="fas fa-shopping-cart me-2"></i>Add to Cart
+                            </a>
+                            
+                            <a href="#" class="btn btn-dark btn-lg shadow-sm">
+                                <i class="fas fa-bolt me-2"></i>Buy Now
+                            </a>
+                        </div>
+
+                        <!-- Additional Actions -->
+                        <div class="d-flex gap-2 mt-3">
+                            <button class="btn btn-outline-secondary flex-fill">
+                                <i class="far fa-heart me-1"></i>Wishlist
+                            </button>
+                            <button class="btn btn-outline-secondary flex-fill">
+                                <i class="fas fa-share-alt me-1"></i>Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Information Tabs -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-0 py-3">
+                        <h4 class="mb-0 fw-bold">
+                            <i class="fas fa-info-circle text-primary me-2"></i>Product Information
+                        </h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start p-3 bg-light rounded">
+                                    <i class="fas fa-box text-primary fs-4 me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Product Description</h6>
+                                        <p class="text-muted mb-0">{{ product.description }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start p-3 bg-light rounded">
+                                    <i class="fas fa-tags text-success fs-4 me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Category</h6>
+                                        <p class="text-muted mb-0">{{ product.get_category_display }}</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start p-3 bg-light rounded">
+                                    <i class="fas fa-certificate text-warning fs-4 me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Quality Assurance</h6>
+                                        <p class="text-muted mb-0">100% Genuine and Fresh Products</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <div class="d-flex align-items-start p-3 bg-light rounded">
+                                    <i class="fas fa-headset text-info fs-4 me-3 mt-1"></i>
+                                    <div>
+                                        <h6 class="fw-bold mb-1">Customer Support</h6>
+                                        <p class="text-muted mb-0">24/7 Support Available</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

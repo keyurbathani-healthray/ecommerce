@@ -1,58 +1,172 @@
 {% extends 'app/layout.html' %}
 {% load static %}
-{% block title %}Customer Profile{% endblock %}
+{% block title %}My Profile - Account Details{% endblock %}
 
 {% block content %}
-<div class="container my-5">
-  <div class="row mb-4">
-    <div class="col-12">
-      <h3 class="border-bottom pb-3">Welcome <span class="text-capitalize text-primary">{{ request.user }}</span></h3>
+
+<!-- Page Header -->
+<div class="bg-light py-4 mb-4">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+        <h1 class="display-6 fw-bold text-dark mb-3">
+          <i class="fas fa-user-circle text-success me-2"></i>Welcome, <span class="text-capitalize text-primary">{{ request.user }}</span>
+        </h1>
+        
+        <!-- Navigation Buttons -->
+        <div class="d-flex gap-2 flex-wrap">
+          <a href="{% url 'customer-profile' %}" 
+             class="btn {% if request.resolver_match.url_name == 'customer-profile' %}btn-success{% else %}btn-outline-success{% endif %} btn-lg">
+            <i class="fas fa-user-circle me-2"></i>Profile
+          </a>
+          <a href="{% url 'customer-address' %}" 
+             class="btn {% if request.resolver_match.url_name == 'customer-address' %}btn-success{% else %}btn-outline-success{% endif %} btn-lg">
+            <i class="fas fa-map-marker-alt me-2"></i>My Addresses
+          </a>
+        </div>
+      </div>
     </div>
   </div>
-  
-  <div class="row">
-    <div class="col-md-3">
-     <div class="list-group shadow-sm">
-  <a href="{% url 'customer-profile' %}"
-     class="list-group-item list-group-item-action d-flex align-items-center {% if request.resolver_match.url_name == 'customer-profile' %}active{% endif %}">
-    <i class="fas fa-user-circle me-2"></i>Profile
-  </a>
-
-  <a href="{% url 'customer-address' %}"
-     class="list-group-item list-group-item-action d-flex align-items-center {% if request.resolver_match.url_name == 'customer-address' %}active{% endif %}">
-    <i class="fas fa-map-marker-alt me-2"></i>Address
-  </a>
 </div>
 
-    </div>
-    
-    <div class="col-md-8 ms-auto">
-  <form action="" method="post">
-    {% csrf_token %}
-    {% for fm in form %}
-      {{ fm.label_tag }} {{ fm }}
-      <small class="text-danger">{{ fm.errors|striptags }}</small>
-      <br>
-    {% endfor %}
-    <div class="col-12 mt-3">
-      <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
+<div class="container my-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      
+      <!-- Messages Display -->
       {% if form.non_field_errors %}
-  {% for error in form.non_field_errors %}
-    <p class="alert alert-danger my-3">{{ error }}</p>
-  {% endfor %}
-{% endif %}
+        {% for error in form.non_field_errors %}
+          <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <div class="d-flex align-items-center">
+              <i class="fas fa-exclamation-circle fa-lg me-3"></i>
+              <div class="flex-fill">{{ error }}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
 
-{% if messages %}
-  {% for msg in messages %}
-    <div class="alert alert-{{ msg.tags }}" role="alert">
-      {{ msg }}
+      {% if messages %}
+        {% for msg in messages %}
+          <div class="alert alert-{{ msg.tags }} alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
+            <div class="d-flex align-items-center">
+              {% if msg.tags == 'success' %}
+                <i class="fas fa-check-circle fa-lg me-3"></i>
+              {% elif msg.tags == 'error' or msg.tags == 'danger' %}
+                <i class="fas fa-times-circle fa-lg me-3"></i>
+              {% else %}
+                <i class="fas fa-info-circle fa-lg me-3"></i>
+              {% endif %}
+              <div class="flex-fill">{{ msg }}</div>
+            </div>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      <!-- Profile Form Card -->
+      <div class="card border-0 shadow-sm">
+        <div class="card-header bg-primary text-white py-4">
+          <div class="text-center">
+            <div class="bg-white bg-opacity-25 rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+              <i class="fas fa-user-edit fa-2x text-white"></i>
+            </div>
+            <h3 class="mb-0 fw-bold">My Profile</h3>
+            <p class="mb-0 mt-2 small">Update your personal information</p>
+          </div>
+        </div>
+        
+        <div class="card-body p-4 p-md-5">
+          <form action="" method="post">
+            {% csrf_token %}
+            
+            {% for fm in form %}
+              <div class="mb-4">
+                <label for="{{ fm.id_for_label }}" class="form-label fw-bold text-dark">
+                  <i class="fas fa-edit me-2 text-primary"></i>{{ fm.label }}
+                </label>
+                {{ fm }}
+                {% if fm.errors %}
+                  <div class="text-danger small mt-2">
+                    <i class="fas fa-exclamation-circle me-1"></i>
+                    {{ fm.errors|striptags }}
+                  </div>
+                {% endif %}
+                {% if fm.help_text %}
+                  <small class="form-text text-muted d-block mt-2">
+                    <i class="fas fa-info-circle me-1"></i>{{ fm.help_text }}
+                  </small>
+                {% endif %}
+              </div>
+            {% endfor %}
+            
+            <div class="d-grid gap-2 mt-4">
+              <button type="submit" class="btn btn-success btn-lg shadow">
+                <i class="fas fa-save me-2"></i>Save Changes
+              </button>
+            </div>
+          </form>
+        </div>
+        
+        <div class="card-footer bg-light border-0 py-3">
+          <div class="text-center text-muted small">
+            <i class="fas fa-shield-alt me-1"></i>
+            Your information is secure and private
+          </div>
+        </div>
+      </div>
+
+      <!-- Additional Information Card -->
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4">
+          <h5 class="fw-bold mb-3">
+            <i class="fas fa-info-circle text-info me-2"></i>Account Information
+          </h5>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-envelope text-success me-3"></i>
+                <div>
+                  <small class="text-muted d-block">Email Address</small>
+                  <p class="mb-0 fw-semibold">{{ request.user.email|default:"Not provided" }}</p>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="d-flex align-items-center">
+                <i class="fas fa-user-tag text-primary me-3"></i>
+                <div>
+                  <small class="text-muted d-block">Username</small>
+                  <p class="mb-0 fw-semibold">{{ request.user.username }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions Card -->
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body p-4 text-center">
+          <h5 class="fw-bold mb-4">
+            <i class="fas fa-bolt text-warning me-2"></i>Quick Actions
+          </h5>
+          <div class="d-flex gap-2 justify-content-center flex-wrap">
+            <a href="{% url 'customer-address' %}" class="btn btn-outline-primary">
+              <i class="fas fa-map-marker-alt me-2"></i>Manage Addresses
+            </a>
+            <a href="{% url 'orders' %}" class="btn btn-outline-success">
+              <i class="fas fa-shopping-bag me-2"></i>My Orders
+            </a>
+            <a href="{% url 'change-password' %}" class="btn btn-outline-warning">
+              <i class="fas fa-key me-2"></i>Change Password
+            </a>
+          </div>
+        </div>
+      </div>
+
     </div>
-  {% endfor %}
-{% endif %}
+  </div>
+</div>
 
-  </form>
-</div>
-</div>
-</div>
 {% endblock %}

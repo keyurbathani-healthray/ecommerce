@@ -1,8 +1,6 @@
 {% extends 'app/layout.html' %}
 {% load static %}
-{% block title %}contact{% endblock title %}
-
-
+{% block title %}Contact Us - Get In Touch{% endblock title %}
 
 {% block banner_slider %}
 
@@ -33,17 +31,200 @@
    
 {% endblock %}
 
-
 {% block content %}
-<div class="container mt-3">
-    <br>
-    <h2 class="text-center">Contact Us</h2>
-    <br>
-    <div class="row container">
-        <p class="fs-4 text-center">Address : </p>
-        <p class="fs-4 text-center">Contact : </p>
-        <p class="fs-4 text-center">Email : </p>
+
+<!-- Page Header -->
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h1 class="display-4 fw-bold text-dark mb-3">
+                    <i class="fas fa-envelope text-success me-3"></i>Contact Us
+                </h1>
+                <p class="lead text-muted">We'd love to hear from you! Get in touch with us.</p>
+            </div>
+        </div>
     </div>
 </div>
-<br><br>
+
+<!-- Contact Information Section -->
+<div class="container my-5 py-4">
+    <div class="row g-4">
+        <!-- Address Card -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm text-center">
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <div class="bg-success bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-map-marker-alt fa-3x text-success"></i>
+                        </div>
+                    </div>
+                    <h4 class="card-title fw-bold mb-3">Our Address</h4>
+                    <p class="card-text text-muted fs-5 mb-0">
+                        123 Business Street<br>
+                        City Name, State 12345<br>
+                        Country
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phone Card -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm text-center">
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-phone-alt fa-3x text-primary"></i>
+                        </div>
+                    </div>
+                    <h4 class="card-title fw-bold mb-3">Call Us</h4>
+                    <p class="card-text text-muted fs-5 mb-2">
+                        <a href="tel:+1234567890" class="text-decoration-none text-muted">+1 (234) 567-890</a>
+                    </p>
+                    <p class="card-text text-muted fs-6">
+                        Mon - Fri, 9:00 AM - 6:00 PM
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Email Card -->
+        <div class="col-lg-4 col-md-6">
+            <div class="card h-100 border-0 shadow-sm text-center">
+                <div class="card-body p-4">
+                    <div class="mb-4">
+                        <div class="bg-info bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px;">
+                            <i class="fas fa-envelope fa-3x text-info"></i>
+                        </div>
+                    </div>
+                    <h4 class="card-title fw-bold mb-3">Email Us</h4>
+                    <p class="card-text text-muted fs-5 mb-0">
+                        <a href="mailto:info@example.com" class="text-decoration-none text-muted">info@example.com</a><br>
+                        <a href="mailto:support@example.com" class="text-decoration-none text-muted">support@example.com</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contact Form & Map Section -->
+<div class="bg-light py-5">
+    <div class="container">
+        <div class="row g-4">
+            <!-- Contact Form -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h3 class="card-title fw-bold mb-4">
+                            <i class="fas fa-paper-plane text-success me-2"></i>Send Us a Message
+                        </h3>
+                        <form>
+                            <div class="mb-3">
+                                <label for="name" class="form-label fw-semibold">
+                                    <i class="fas fa-user me-2 text-success"></i>Your Name
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="name" placeholder="Enter your name" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="email" class="form-label fw-semibold">
+                                    <i class="fas fa-envelope me-2 text-success"></i>Email Address
+                                </label>
+                                <input type="email" class="form-control form-control-lg" id="email" placeholder="Enter your email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="subject" class="form-label fw-semibold">
+                                    <i class="fas fa-tag me-2 text-success"></i>Subject
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="subject" placeholder="Enter subject" required>
+                            </div>
+                            <div class="mb-4">
+                                <label for="message" class="form-label fw-semibold">
+                                    <i class="fas fa-comment me-2 text-success"></i>Message
+                                </label>
+                                <textarea class="form-control form-control-lg" id="message" rows="5" placeholder="Write your message here..." required></textarea>
+                            </div>
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-paper-plane me-2"></i>Send Message
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Google Map / Additional Info -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h3 class="card-title fw-bold mb-4">
+                            <i class="fas fa-map-marked-alt text-primary me-2"></i>Find Us Here
+                        </h3>
+                        
+                        <!-- Map Placeholder -->
+                        <div class="bg-secondary bg-opacity-10 rounded d-flex align-items-center justify-content-center mb-4" style="height: 300px;">
+                            <div class="text-center">
+                                <i class="fas fa-map fa-5x text-muted mb-3"></i>
+                                <p class="text-muted">Map Location</p>
+                            </div>
+                        </div>
+
+                        <!-- Additional Information -->
+                        <div class="mt-4">
+                            <h5 class="fw-bold mb-3">Business Hours</h5>
+                            <ul class="list-unstyled">
+                                <li class="mb-2">
+                                    <i class="fas fa-clock text-success me-2"></i>
+                                    <strong>Monday - Friday:</strong> 9:00 AM - 6:00 PM
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-clock text-success me-2"></i>
+                                    <strong>Saturday:</strong> 10:00 AM - 4:00 PM
+                                </li>
+                                <li class="mb-2">
+                                    <i class="fas fa-clock text-danger me-2"></i>
+                                    <strong>Sunday:</strong> Closed
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Social Media Section -->
+<div class="container my-5 py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-sm bg-success text-white">
+                <div class="card-body p-5 text-center">
+                    <h3 class="fw-bold mb-4">Connect With Us</h3>
+                    <p class="lead mb-4">Follow us on social media for updates and special offers</p>
+                    <div class="d-flex justify-content-center gap-3 flex-wrap">
+                        <a href="#" class="btn btn-light btn-lg rounded-circle" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fab fa-facebook-f fa-xl text-primary"></i>
+                        </a>
+                        <a href="#" class="btn btn-light btn-lg rounded-circle" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fab fa-twitter fa-xl text-info"></i>
+                        </a>
+                        <a href="#" class="btn btn-light btn-lg rounded-circle" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fab fa-instagram fa-xl text-danger"></i>
+                        </a>
+                        <a href="#" class="btn btn-light btn-lg rounded-circle" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fab fa-linkedin-in fa-xl text-primary"></i>
+                        </a>
+                        <a href="#" class="btn btn-light btn-lg rounded-circle" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                            <i class="fab fa-youtube fa-xl text-danger"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endblock content %}

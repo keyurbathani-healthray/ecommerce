@@ -4,6 +4,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Premium quality dairy products - Fresh milk, ghee, curd, cheese and more delivered to your doorstep" />
+    <meta name="keywords" content="dairy products, milk, ghee, curd, cheese, paneer, fresh dairy" />
     <link
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
       rel="stylesheet"
@@ -11,9 +13,9 @@
       crossorigin="anonymous"
     />
     <link
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-  rel="stylesheet"
-/>
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
 
     <link rel="stylesheet" href="{% static 'app/css/owl.carousel.min.css' %}" />
     <link rel="stylesheet" href="{% static 'app/css/all.min.css' %}" />
@@ -21,15 +23,40 @@
     <link rel="stylesheet" href="{% static 'app/css/style.css' %}" />
     <title>{% block title %}Dairy products{% endblock %}</title>
   </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+  <body class="d-flex flex-column min-vh-100">
+    <!-- Top Info Bar -->
+    <div class="bg-dark text-white py-2">
       <div class="container-fluid">
-        <a class="navbar-brand" href="#">
-          <img src="{% static "/app/images/products/Neel.png" %}" alt=""
-          width="70" height="50" />
+        <div class="row">
+          <div class="col-md-6 text-center text-md-start">
+            <small>
+              <i class="fas fa-phone-alt me-2"></i>Call Us: +91 1234567890
+              <span class="mx-3">|</span>
+              <i class="fas fa-envelope me-2"></i>support@dairy.com
+            </small>
+          </div>
+          <div class="col-md-6 text-center text-md-end">
+            <small>
+              <i class="fas fa-shipping-fast me-2"></i>Free Delivery on Orders Above ₹500
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success shadow-sm sticky-top">
+      <div class="container-fluid">
+        <!-- Brand Logo -->
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+          <img src="{% static "/app/images/products/Neel.png" %}" alt="Dairy Logo"
+          width="70" height="50" class="me-2" />
+          <span class="fw-bold d-none d-md-inline">Dairy Products</span>
         </a>
+
+        <!-- Mobile Toggle Button -->
         <button
-          class="navbar-toggler"
+          class="navbar-toggler border-0"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarSupportedContent"
@@ -39,72 +66,125 @@
         >
           <span class="navbar-toggler-icon"></span>
         </button>
+
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <!-- Main Navigation Links -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
-              <a class="nav-link active text-dark fw-semibold" aria-current="page" href="{% url 'home' %}">Home</a>
+              <a class="nav-link text-white fw-semibold px-3" aria-current="page" href="{% url 'home' %}">
+                <i class="fas fa-home me-1"></i>Home
+              </a>
             </li>
 
+            <!-- Products Dropdown -->
             <li class="nav-item dropdown">
               <a
-                class="nav-link dropdown-toggle text-dark fw-semibold"
+                class="nav-link dropdown-toggle text-white fw-semibold px-3"
                 href="#"
                 role="button"
                 data-bs-toggle="dropdown"
+                aria-expanded="false"
               >
-                Products
+                <i class="fas fa-box me-1"></i>Products
               </a>
-              <ul class="dropdown-menu">
-                <li><a class="dropdown-item" href="{% url 'category' 'ML' %}">Milk</a></li>
-                <li><a class="dropdown-item" href="{% url 'category' 'CR' %}">Curd</a></li>
-                <li><a class="dropdown-item" href="{% url 'category' 'MS' %}">Milkshake</a></li>
-                <li><a class="dropdown-item" href="{% url 'category' 'LS' %}">Lassi</a></li>
-                <li><a class="dropdown-item" href="{% url 'category' 'GH' %}">Ghee</a></li>
-                <li><a class="dropdown-item" href="{% url 'category' 'PN' %}">Paneer</a></li>
-                <li><a class="dropdown-item" href="{% url 'category' 'CZ' %}">Cheese</a></li>
-                <li><a class="dropdown-item" href="{% url 'category' 'IC' %}">Ice Cream</a></li>
+              <ul class="dropdown-menu border-0 shadow">
+                <li><a class="dropdown-item py-2" href="{% url 'category' 'ML' %}">
+                  <i class="fas fa-wine-bottle text-primary me-2"></i>Milk
+                </a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'category' 'CR' %}">
+                  <i class="fas fa-bowl-food text-success me-2"></i>Curd
+                </a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'category' 'MS' %}">
+                  <i class="fas fa-blender text-info me-2"></i>Milkshake
+                </a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'category' 'LS' %}">
+                  <i class="fas fa-glass-water text-warning me-2"></i>Lassi
+                </a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'category' 'GH' %}">
+                  <i class="fas fa-jar text-danger me-2"></i>Ghee
+                </a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'category' 'PN' %}">
+                  <i class="fas fa-cheese text-secondary me-2"></i>Paneer
+                </a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'category' 'CZ' %}">
+                  <i class="fas fa-pizza-slice text-warning me-2"></i>Cheese
+                </a></li>
+                <li><a class="dropdown-item py-2" href="{% url 'category' 'IC' %}">
+                  <i class="fas fa-ice-cream text-primary me-2"></i>Ice Cream
+                </a></li>
               </ul>
             </li>
+
             <li class="nav-item">
-              <a class="nav-link text-dark fw-semibold" href="{% url 'contactus' %}">Contact Us</a>
+              <a class="nav-link text-white fw-semibold px-3" href="{% url 'contactus' %}">
+                <i class="fas fa-phone me-1"></i>Contact Us
+              </a>
             </li>
 
             <li class="nav-item">
-              <a class="nav-link text-dark fw-semibold" href="{% url 'aboutus' %}">About Us</a>
+              <a class="nav-link text-white fw-semibold px-3" href="{% url 'aboutus' %}">
+                <i class="fas fa-info-circle me-1"></i>About Us
+              </a>
             </li>
           </ul>
-          <form class="d-flex me-3" role="search">
-            <input
-              class="form-control me-2"
-              type="search"
-              placeholder="Search"
-              aria-label="Search"
-            />
-            <button class="btn btn-outline-light" type="submit">
-              Search
-            </button>
+
+          <!-- Search Form -->
+          <form class="d-flex me-3 my-2 my-lg-0" role="search">
+            <div class="input-group">
+              <input
+                class="form-control border-0"
+                type="search"
+                placeholder="Search products..."
+                aria-label="Search"
+              />
+              <button class="btn btn-light text-success" type="submit">
+                <i class="fas fa-search"></i>
+              </button>
+            </div>
           </form>
 
+          <!-- User Actions -->
           <ul class="navbar-nav mb-2 mb-lg-0 align-items-lg-center">
 
   {% if request.user.is_authenticated %}
     <!-- Profile Dropdown -->
     <li class="nav-item dropdown mx-2">
       <a
-        class="nav-link dropdown-toggle text-white"
+        class="nav-link dropdown-toggle text-white d-flex align-items-center"
         href="#"
         id="profileDropdown"
         role="button"
         data-bs-toggle="dropdown"
         aria-expanded="false"
       >
-        <i class="fas fa-user"></i> {{request.user.username|title}}
+        <div class="bg-white text-success rounded-circle d-flex align-items-center justify-content-center me-2" 
+             style="width: 35px; height: 35px;">
+          <i class="fas fa-user"></i>
+        </div>
+        <span class="d-none d-lg-inline">{{request.user.username|title}}</span>
       </a>
-      <ul class="dropdown-menu" aria-labelledby="profileDropdown">
-        <li><a class="dropdown-item" href="{% url 'customer-profile' %}">Profile</a></li>
-        <li><a class="dropdown-item" href="{% url 'orders' %}">Orders</a></li>
-        <li><a class="dropdown-item" href="{% url 'change-password' %}">Change Password</a></li>
-        <li><a class="dropdown-item" href="{% url 'customer-logout' %}">Logout</a></li>
+      <ul class="dropdown-menu dropdown-menu-end border-0 shadow" aria-labelledby="profileDropdown">
+        <li>
+          <a class="dropdown-item py-2" href="{% url 'customer-profile' %}">
+            <i class="fas fa-user-circle text-primary me-2"></i>Profile
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item py-2" href="{% url 'orders' %}">
+            <i class="fas fa-shopping-bag text-success me-2"></i>Orders
+          </a>
+        </li>
+        <li>
+          <a class="dropdown-item py-2" href="{% url 'change-password' %}">
+            <i class="fas fa-key text-warning me-2"></i>Change Password
+          </a>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <a class="dropdown-item py-2 text-danger" href="{% url 'customer-logout' %}">
+            <i class="fas fa-sign-out-alt me-2"></i>Logout
+          </a>
+        </li>
       </ul>
     </li>
 
@@ -112,9 +192,12 @@
     <li class="nav-item mx-2">
       <a href="{% url 'show-cart' %}" class="nav-link text-white position-relative">
         <i class="fas fa-shopping-cart fs-5"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-          4
-        </span>
+        {% if request.user.is_authenticated %}
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ request.user.cart_set.count|default:"0" }}
+            <span class="visually-hidden">items in cart</span>
+          </span>
+        {% endif %}
       </a>
     </li>
 
@@ -122,19 +205,26 @@
     <li class="nav-item mx-2">
       <a href="#" class="nav-link text-white position-relative">
         <i class="fas fa-heart fs-5"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-          4
-        </span>
+        {% if request.user.is_authenticated %}
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            0
+            <span class="visually-hidden">items in wishlist</span>
+          </span>
+        {% endif %}
       </a>
     </li>
 
   {% else %}
     <!-- Login and Register Buttons -->
     <li class="nav-item mx-2">
-      <a href="{% url 'customer-login' %}" class="btn btn-light text-success fw-semibold px-3">Login</a>
+      <a href="{% url 'customer-login' %}" class="btn btn-light text-success fw-semibold px-4 shadow-sm">
+        <i class="fas fa-sign-in-alt me-1"></i>Login
+      </a>
     </li>
     <li class="nav-item mx-2">
-      <a href="{% url 'customer-registration' %}" class="btn btn-outline-light fw-semibold px-3">Registration</a>
+      <a href="{% url 'customer-registration' %}" class="btn btn-outline-light fw-semibold px-4">
+        <i class="fas fa-user-plus me-1"></i>Register
+      </a>
     </li>
   {% endif %}
 </ul>
@@ -142,12 +232,144 @@
         </div>
       </div>
     </nav>
-  {% block banner_slider %}{% endblock %}
-   {% block information %}{% endblock  %}
-    {% block content %} Keyur bathani {% endblock %}
-    {% block payment-gateway %}{% endblock %}
-    <footer class="container-fluid fixed-bottom bg-success text-center p-2 mt-5">copy right message</footer>
 
+    <!-- Main Content Area -->
+    <main class="flex-grow-1">
+      {% block banner_slider %}{% endblock %}
+      {% block information %}{% endblock %}
+      {% block content %} {% endblock %}
+      {% block payment-gateway %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-success text-white mt-5">
+      <div class="container py-4">
+        <div class="row">
+          <!-- About Section -->
+          <div class="col-md-4 mb-3">
+            <h5 class="fw-bold mb-3">
+              <i class="fas fa-leaf me-2"></i>Dairy Products
+            </h5>
+            <p class="small">
+              Premium quality dairy products delivered fresh to your doorstep. 
+              We ensure 100% purity and hygiene in all our products.
+            </p>
+            <div class="d-flex gap-2">
+              <a href="#" class="btn btn-light btn-sm rounded-circle" style="width: 35px; height: 35px;">
+                <i class="fab fa-facebook-f"></i>
+              </a>
+              <a href="#" class="btn btn-light btn-sm rounded-circle" style="width: 35px; height: 35px;">
+                <i class="fab fa-twitter"></i>
+              </a>
+              <a href="#" class="btn btn-light btn-sm rounded-circle" style="width: 35px; height: 35px;">
+                <i class="fab fa-instagram"></i>
+              </a>
+              <a href="#" class="btn btn-light btn-sm rounded-circle" style="width: 35px; height: 35px;">
+                <i class="fab fa-youtube"></i>
+              </a>
+            </div>
+          </div>
+
+          <!-- Quick Links -->
+          <div class="col-md-2 mb-3">
+            <h6 class="fw-bold mb-3">Quick Links</h6>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <a href="{% url 'home' %}" class="text-white text-decoration-none small">
+                  <i class="fas fa-chevron-right me-1"></i>Home
+                </a>
+              </li>
+              <li class="mb-2">
+                <a href="{% url 'aboutus' %}" class="text-white text-decoration-none small">
+                  <i class="fas fa-chevron-right me-1"></i>About Us
+                </a>
+              </li>
+              <li class="mb-2">
+                <a href="{% url 'contactus' %}" class="text-white text-decoration-none small">
+                  <i class="fas fa-chevron-right me-1"></i>Contact Us
+                </a>
+              </li>
+              <li class="mb-2">
+                <a href="#" class="text-white text-decoration-none small">
+                  <i class="fas fa-chevron-right me-1"></i>Privacy Policy
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Categories -->
+          <div class="col-md-3 mb-3">
+            <h6 class="fw-bold mb-3">Our Products</h6>
+            <ul class="list-unstyled">
+              <li class="mb-2">
+                <a href="{% url 'category' 'ML' %}" class="text-white text-decoration-none small">
+                  <i class="fas fa-chevron-right me-1"></i>Milk
+                </a>
+              </li>
+              <li class="mb-2">
+                <a href="{% url 'category' 'GH' %}" class="text-white text-decoration-none small">
+                  <i class="fas fa-chevron-right me-1"></i>Ghee
+                </a>
+              </li>
+              <li class="mb-2">
+                <a href="{% url 'category' 'CR' %}" class="text-white text-decoration-none small">
+                  <i class="fas fa-chevron-right me-1"></i>Curd
+                </a>
+              </li>
+              <li class="mb-2">
+                <a href="{% url 'category' 'IC' %}" class="text-white text-decoration-none small">
+                  <i class="fas fa-chevron-right me-1"></i>Ice Cream
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Contact Info -->
+          <div class="col-md-3 mb-3">
+            <h6 class="fw-bold mb-3">Contact Info</h6>
+            <ul class="list-unstyled small">
+              <li class="mb-2">
+                <i class="fas fa-map-marker-alt me-2"></i>
+                123 Dairy Street, City, State
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-phone me-2"></i>
+                +91 1234567890
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-envelope me-2"></i>
+                support@dairy.com
+              </li>
+              <li class="mb-2">
+                <i class="fas fa-clock me-2"></i>
+                Mon - Sat: 9AM - 8PM
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <hr class="border-light my-3">
+
+        <!-- Copyright -->
+        <div class="row">
+          <div class="col-12 text-center">
+            <p class="small mb-0">
+              <i class="fas fa-copyright me-1"></i>
+              2025 Dairy Products. All Rights Reserved. | 
+              <a href="#" class="text-white text-decoration-none">Terms & Conditions</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Back to Top Button -->
+    <button id="backToTop" class="btn btn-success shadow-lg rounded-circle position-fixed bottom-0 end-0 mb-4 me-4 d-none" 
+            style="width: 50px; height: 50px; z-index: 99;" title="Go to top">
+      <i class="fas fa-arrow-up"></i>
+    </button>
+
+    <!-- Scripts -->
     <script
       src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
       integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
@@ -163,6 +385,26 @@
     <script src="{% static 'app/js/all.min.js' %}"></script>
     <script src="{% static 'app/js/myscript.js' %}"></script>
     <script src="{% static 'app/js/password-toggle.js' %}"></script>
+
+    <!-- Back to Top Button Script -->
+    <script>
+      // Back to top button functionality
+      window.addEventListener('scroll', function() {
+        const backToTopButton = document.getElementById('backToTop');
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+          backToTopButton.classList.remove('d-none');
+        } else {
+          backToTopButton.classList.add('d-none');
+        }
+      });
+
+      document.getElementById('backToTop').addEventListener('click', function() {
+        window.scrollTo({
+          top: 0,
+          behavior: 'smooth'
+        });
+      });
+    </script>
 
     {% django_browser_reload_script %}
   </body>
