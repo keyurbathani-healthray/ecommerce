@@ -191,81 +191,118 @@ def show_cart(request):
 
 
 def checkout(request):
+    # STEP 1: Check if user is authenticated before proceeding to checkout
     if not request.user.is_authenticated:
         messages.warning(request, 'Please log in to proceed with checkout.')
         return redirect('customer-login')
     
+    # STEP 2: Get user and fetch their saved addresses
     user = request.user
-    add = Customer.objects.filter(user=user)
-    cart_items = cart.objects.filter(user=user)
+    add = Customer.objects.filter(user=user)  # Get all addresses saved by this user
+    
+    # STEP 3: Calculate total cart amount
+    cart_items = cart.objects.filter(user=user)  # Get all items in user's cart
     amount = 0
-    shipping_amount = 40
+    shipping_amount = 40  # Fixed shipping charge
     for p in cart_items:
-        amount += p.total_cost
-    totalamount = amount + shipping_amount
-    razoramount = int(totalamount * 100)  # Razorpay amount should be in paise
+        amount += p.total_cost  # Calculate total cost of all products
+    totalamount = amount + shipping_amount  # Add shipping to get final amount
+    
+    # STEP 4: Convert amount to paise (Razorpay requires amount in smallest currency unit)
+    razoramount = int(totalamount * 100)  # ₹256 = 25600 paise
+    
+    # STEP 5: Initialize Razorpay client with API credentials
     client = razorpay.Client(auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
+    
+    # STEP 6: Prepare order data for Razorpay
     data = {
-        "amount": razoramount,
-        "currency": "INR",
-        "receipt": "order_rcptid_12"
+        "amount": razoramount,      # Amount in paise
+        "currency": "INR",          # Indian Rupees
+        "receipt": "order_rcptid_12"  # Internal order reference (can be dynamic)
     }
+    
+    # STEP 7: Create order on Razorpay server - This generates a unique order_id
+    # This must be done BEFORE showing payment modal to user
     payment_response = client.order.create(data=data)
     print(payment_response)
-    #  Sample response:
-    # {'amount': 25600, 'amount_due': 25600, 'amount_paid': 0, 'attempts': 0, 'created_at': 1762246256, 'currency': 'INR', 'entity': 'order', 'id': 'order_RbbSoOOag4InGB', 'notes': [], 'offer_id': None, 'receipt': 'order_rcptid_12', 'status': 'created'}
-    order_id = payment_response['id']
-    order_status = payment_response['status']
+    #  Sample response from Razorpay:
+    # {'amount': 25600, 'amount_due': 25600, 'amount_paid': 0, 'attempts': 0, 
+    #  'created_at': 1762246256, 'currency': 'INR', 'entity': 'order', 
+    #  'id': 'order_RbbSoOOag4InGB', 'notes': [], 'offer_id': None, 
+    #  'receipt': 'order_rcptid_12', 'status': 'created'}
+    
+    # STEP 8: Extract order_id and status from Razorpay response
+    order_id = payment_response['id']  # Unique order ID from Razorpay (e.g., 'order_RbbSoOOag4InGB')
+    order_status = payment_response['status']  # Should be 'created'
+    
+    # STEP 9: Save Payment record in OUR database for tracking
+    # This links the Razorpay order_id with our user and amount
     if order_status == 'created':
         payment = Payment(
-            user=user,
-            amount=totalamount,
-            razorpay_order_id=order_id,
-            razorpay_payment_status=order_status
+            user=user,                          # User who is making payment
+            amount=totalamount,                 # Total amount (₹256)
+            razorpay_order_id=order_id,        # Store Razorpay's order_id for later matching
+            razorpay_payment_status=order_status  # Status: 'created' (will be updated to 'paid' later)
         )
-        payment.save()  
+        payment.save()  # Save to database
+    
+    # STEP 10: Render checkout page with all variables
+    # The order_id and razoramount will be used in JavaScript to open Razorpay modal
     return render(request, 'app/checkout.html', locals())
 
 def payment_done(request):
-    # Get payment details from URL parameters
-    cust_id = request.GET.get('cust_id')
-    order_id = request.GET.get('order_id')
-    payment_id = request.GET.get('payment_id')
+    # STEP 11: Extract payment details from URL parameters sent by Razorpay
+    # After successful payment, Razorpay redirects here with these parameters
+    cust_id = request.GET.get('cust_id')      # Customer address ID selected by user
+    order_id = request.GET.get('order_id')    # Razorpay order_id (e.g., 'order_RbbSoOOag4InGB')
+    payment_id = request.GET.get('payment_id')  # Razorpay payment_id (e.g., 'pay_RbcZ8PhVlUEuka')
     
-    # Validate required parameters
+    # STEP 12: Validate that all required parameters are present
     if not cust_id or not order_id or not payment_id:
         messages.error(request, 'Invalid payment information.')
         return redirect('checkout')
     
     try:
-        # Get the payment record - this has the user who initiated the payment
+        # STEP 13: Find the Payment record we created earlier using order_id
+        # This matches the Razorpay order_id with our database record
         payment = Payment.objects.get(razorpay_order_id=order_id)
-        user = payment.user  # Get user from payment record, not from request
         
-        # Validate customer address
+        # STEP 14: Get the user from Payment record (not from request)
+        # This ensures we're processing payment for the correct user
+        # Important: request.user might be AnonymousUser if session expired
+        user = payment.user  # Get the actual user who created this payment
+        
+        # STEP 15: Validate that the customer address belongs to this user
+        # Security check to prevent unauthorized address access
         customer = Customer.objects.get(id=cust_id, user=user)
         
-        # Update payment status
-        payment.razorpay_payment_id = payment_id
-        payment.razorpay_payment_status = 'paid'
-        payment.paid = True
-        payment.save()
+        # STEP 16: Update payment status to PAID in our database
+        payment.razorpay_payment_id = payment_id  # Store Razorpay's payment_id
+        payment.razorpay_payment_status = 'paid'  # Update status from 'created' to 'paid'
+        payment.paid = True  # Mark payment as completed
+        payment.save()  # Save changes to database
         
-        # Process cart items and create orders
-        cart_items = cart.objects.filter(user=user)
+        # STEP 17: Process cart items and create OrderPlaced records
+        cart_items = cart.objects.filter(user=user)  # Get all items in user's cart
+        
+        # STEP 18: Create individual OrderPlaced record for each cart item
         for c in cart_items:
             OrderPlaced(
-                user=user,
-                customer=customer,
-                product=c.product,
-                quantity=c.quantity,
-                payment=payment
-            ).save()
-            c.delete()
+                user=user,              # User who placed the order
+                customer=customer,      # Delivery address
+                product=c.product,      # Product ordered
+                quantity=c.quantity,    # Quantity ordered
+                payment=payment         # Link to Payment record
+            ).save()  # Save order to database
+            
+            # STEP 19: Delete item from cart after order is placed
+            c.delete()  # Remove from cart
         
+        # STEP 20: Show success message and redirect to orders page
         messages.success(request, 'Payment successful! Your order has been placed.')
-        return redirect('orders')
+        return redirect('orders')  # Redirect to view all orders
         
+    # STEP 21: Handle errors gracefully
     except Payment.DoesNotExist:
         messages.error(request, 'Payment record not found.')
         return redirect('checkout')

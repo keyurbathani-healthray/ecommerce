@@ -16,6 +16,7 @@
         <div class="col-sm-6">
             <h4>Order Summary</h4>
             <hr>
+            <!-- STEP 1-2: Display all cart items with product details -->
             {% for item in cart_items %}
             <div class="card mb-2">
                 <div class="card-body">
@@ -25,6 +26,7 @@
                 </div>
             </div>
             {% endfor %}
+            <!-- STEP 3: Display total amount (cart total + ₹40 shipping) -->
             <p class="fw-bold">Total Cost + Rs. 40(Fixed Shipping amount) = {{totalamount}}</p>
 
             <div>
@@ -35,8 +37,10 @@
     <div class="col-sm-4 offset-sm-1">
         <h4>Select Shipping Address</h4>
         <hr>
+        <!-- Payment form - contains address selection -->
         <form method="post" id="myform">
             {% csrf_token %}
+            <!-- Loop through all saved addresses -->
             {% for ad in add %}
             <div class="card">
                 <div class="card-body">
@@ -46,6 +50,9 @@
                 </div>
             </div>
            <div class="form-check mt-2 mb-5">
+    <!-- Radio button for address selection -->
+    <!-- First address is pre-selected using {% if forloop.first %}checked{% endif %} -->
+    <!-- The value={{ad.id}} will be sent as cust_id parameter after payment -->
     <input class="form-check-input border border-dark" type="radio" name="custid" id="custadd{{forloop.counter}}" value="{{ad.id}}" {% if forloop.first %}checked{% endif %}>
     <label class="form-check-label fw-bold" for="custadd{{forloop.counter}}">
         Address: {{forloop.counter}} </label>
@@ -54,10 +61,12 @@
 
             <div class="form-check mb-3">
                 <label for="totamount" class="form-label">Total Amount</label>
+                <!-- Display total amount (read-only) -->
                 <input type="number" class="form-control" name="totamount" value={{totalamount}} readonly>
             </div>
             <div class="text-end">
                 {% comment %} <button type="submit" class="btn btn-warning mt-3 px-5 fw-bold">Continue</button> {% endcomment %}
+                <!-- STEP 6: Payment button - When clicked, opens Razorpay modal -->
                 <button id="rzp-button1" type="submit" class="btn btn-warning mt-3 px-5 fw-bold">Payment</button>
             </div>
         </form>
@@ -68,51 +77,90 @@
 
  {% block payment-gateway %}
 
-<button id="rzp-button1">Pay</button>
+<!-- Load Razorpay JavaScript library -->
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
+// Configure Razorpay payment modal options
 var options = {
-    "key": "rzp_test_RbHEGAnfXfDDMD", // Enter the Key ID generated from the Dashboard
-    "amount": "{{razoramount}}", // Amount is in currency subunits.
+    // API Key from Razorpay Dashboard
+    "key": "rzp_test_RbHEGAnfXfDDMD",
+    
+    // Amount in paise (passed from backend - e.g., 25600 paise = ₹256)
+    "amount": "{{razoramount}}",
+    
+    // Currency code
     "currency": "INR",
-    "name": "Neel Product", //your business name
+    
+    // Business/Store name displayed in payment modal
+    "name": "Neel Product",
+    
+    // Description shown in payment modal
     "description": "purchase products",
+    
+    // Optional: Your logo URL
     // "image": "https://example.com/your_logo",
-    "order_id": "{{order_id}}", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    
+    // IMPORTANT: Order ID created on backend (e.g., 'order_RbbSoOOag4InGB')
+    // This links payment to the order we created in checkout view
+    "order_id": "{{order_id}}",
+    
+    // STEP 10: Handler function - Executes when payment is SUCCESSFUL
     "handler": function (response){
-
+        // Get the form to extract selected address
         var form = document.getElementById('myform');
+        
+        // Razorpay sends these after successful payment:
+        // response.razorpay_payment_id - Unique payment ID (e.g., 'pay_RbcZ8PhVlUEuka')
+        // response.razorpay_order_id - Order ID we created (e.g., 'order_RbbSoOOag4InGB')
+        // response.razorpay_signature - Signature for verification (optional)
+        
+        // Uncomment to debug:
         // alert(response.razorpay_payment_id);
-       // alert(response.razorpay_order_id);
-       // alert(response.razorpay_signature);
-
-       window.location.href = `http://localhost:8001/paymentdone?order_id=${response.razorpay_order_id}&payment_id=${response.razorpay_payment_id}&cust_id=${form.elements["custid"].value}`
+        // alert(response.razorpay_order_id);
+        // alert(response.razorpay_signature);
+        
+        // Redirect to payment completion page with payment details
+        // This sends order_id, payment_id, and customer address to backend
+        window.location.href = `http://localhost:8001/paymentdone?order_id=${response.razorpay_order_id}&payment_id=${response.razorpay_payment_id}&cust_id=${form.elements["custid"].value}`
     },
-    "prefill": { //We recommend using the prefill parameter to auto-fill customer's contact information, especially their phone number
-        "name": "<name>", //your customer's name
+    
+    // Pre-fill customer information (optional - improves conversion)
+    "prefill": {
+        "name": "<name>",
         "email": "<email>", 
-        "contact": "<phone>"  //Provide the customer's phone number for better conversion rates 
+        "contact": "<phone>"
     },
+    
+    // Additional notes (optional)
     "notes": {
         "address": "Razorpay Corporate Office"
     },
+    
+    // Customize modal theme color
     "theme": {
         "color": "#3399cc"
     }
 };
+
+// STEP 8: Initialize Razorpay payment object with above options
 var rzp1 = new Razorpay(options);
+
+// STEP 9: Handle payment failure
 rzp1.on('payment.failed', function (response){
-        alert(response.error.code);
-        alert(response.error.description);
-        alert(response.error.source);
-        alert(response.error.step);
-        alert(response.error.reason);
-        alert(response.error.metadata.order_id);
-        alert(response.error.metadata.payment_id);
+    // Display error details if payment fails
+    alert(response.error.code);
+    alert(response.error.description);
+    alert(response.error.source);
+    alert(response.error.step);
+    alert(response.error.reason);
+    alert(response.error.metadata.order_id);
+    alert(response.error.metadata.payment_id);
 });
+
+// STEP 7: When user clicks Payment button, open Razorpay modal
 document.getElementById('rzp-button1').onclick = function(e){
-    rzp1.open();
-    e.preventDefault();
+    rzp1.open();        // Open Razorpay payment modal
+    e.preventDefault(); // Prevent default form submission
 }
 </script>
 

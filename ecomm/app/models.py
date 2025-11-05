@@ -99,8 +99,8 @@ class cart(models.Model):
     def total_cost(self):
         return self.quantity * self.product.discounted_price
     
-    # def __str__(self):
-    #     return f"{self.quantity} of {self.product} for {self.user.username}"
+    def __str__(self):
+        return f"{self.quantity} of {self.product} for {self.user.username}"
 
 class Payment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -110,6 +110,9 @@ class Payment(models.Model):
     razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
     paid = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f"Payment id {self.id} by {self.user.username}"
+
 class OrderPlaced(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
@@ -117,9 +120,12 @@ class OrderPlaced(models.Model):
     quantity = models.PositiveIntegerField(default=1)
     ordered_date = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='Pending')
-    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, default="")
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE, default="")  
 
-    
+    def __str__(self):
+        return f"Order id {self.id} by customer  {self.customer.name}"
+
+
     @property
     def total_cost(self):
         return self.quantity * self.product.discounted_price
