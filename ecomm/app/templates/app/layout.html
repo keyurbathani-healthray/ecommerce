@@ -181,7 +181,7 @@
         </li>
         <li><hr class="dropdown-divider"></li>
         <li>
-          <a class="dropdown-item py-2 text-danger" href="{% url 'customer-logout' %}">
+          <a class="dropdown-item py-2 text-danger" href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
             <i class="fas fa-sign-out-alt me-2"></i>Logout
           </a>
         </li>
@@ -363,8 +363,39 @@
       </div>
     </footer>
 
+    <!-- Logout Confirmation Modal -->
+    <div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+          <div class="modal-header bg-danger text-white border-0">
+            <h5 class="modal-title fw-bold" id="logoutModalLabel">
+              <i class="fas fa-sign-out-alt me-2"></i>Confirm Logout
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body p-4">
+            <div class="text-center mb-3">
+              <i class="fas fa-exclamation-triangle text-warning" style="font-size: 4rem;"></i>
+            </div>
+            <h6 class="text-center mb-3">Are you sure you want to logout?</h6>
+            <p class="text-muted text-center mb-0">
+              You will need to login again to access your account and continue shopping.
+            </p>
+          </div>
+          <div class="modal-footer border-0 justify-content-center">
+            <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+              <i class="fas fa-times me-2"></i>Cancel
+            </button>
+            <a href="{% url 'customer-logout' %}" class="btn btn-danger px-4">
+              <i class="fas fa-sign-out-alt me-2"></i>Yes, Logout
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Back to Top Button -->
-    <button id="backToTop" class="btn btn-success shadow-lg rounded-circle position-fixed bottom-0 end-0 mb-4 me-4 d-none" 
+    <button id="backToTop" class="btn btn-dark shadow-lg rounded-circle position-fixed bottom-0 end-0 mb-4 me-4 d-none" 
             style="width: 50px; height: 50px; z-index: 99;" title="Go to top">
       <i class="fas fa-arrow-up"></i>
     </button>
