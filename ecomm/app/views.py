@@ -190,6 +190,7 @@ def show_cart(request):
     return render(request, 'app/addtocart.html', locals())
 
 
+
 def checkout(request):
     # STEP 1: Check if user is authenticated before proceeding to checkout
     if not request.user.is_authenticated:

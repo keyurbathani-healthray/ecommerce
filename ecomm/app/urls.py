@@ -1,6 +1,9 @@
 
 from django.urls import path
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
+from django.contrib import admin
 from . import views
 
 urlpatterns = [
@@ -41,4 +44,11 @@ urlpatterns = [
         template_name='app/password_reset_confirm.html'), name='password_reset_confirm'),
    path('password-reset-complete/', auth_views.PasswordResetCompleteView.as_view(
         template_name='app/password_reset_complete.html'), name='password_reset_complete'),
-   ]  
+
+
+   ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+admin.site.site_header = "Neel Dairy Admin"
+admin.site.site_title = "Neel Dairy"
+admin.site.index_title = "Welcome to Neel Dairy"
