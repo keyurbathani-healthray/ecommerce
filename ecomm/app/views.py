@@ -178,6 +178,19 @@ def add_to_cart(request, pk):
          # So, we don't need to do anything else.
     return redirect("/cart")
 
+def buy_now(request, pk):
+    # Check if user is authenticated
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Please log in to continue.')
+        return redirect('customer-login')
+    
+    # Store product ID and quantity in session for buy now checkout
+    request.session['buy_now_product_id'] = pk
+    request.session['buy_now_quantity'] = 1  # Default quantity is 1
+    
+    # Redirect to checkout
+    return redirect('checkout')
+
 def show_cart(request):
     user = request.user
     cart_items = cart.objects.filter(user=user)
@@ -201,28 +214,72 @@ def checkout(request):
     user = request.user
     add = Customer.objects.filter(user=user)  # Get all addresses saved by this user
     
-    # STEP 3: Calculate total cart amount
-    cart_items = cart.objects.filter(user=user)  # Get all items in user's cart
+    # STEP 3: Check if user explicitly came from cart (has ?from=cart parameter)
+    from_cart = request.GET.get('from') == 'cart'
+    
+    # STEP 4: If coming from cart, clear any buy_now session data
+    if from_cart:
+        if 'buy_now_product_id' in request.session:
+            del request.session['buy_now_product_id']
+        if 'buy_now_quantity' in request.session:
+            del request.session['buy_now_quantity']
+    
+    # STEP 5: Check if this is a "Buy Now" checkout or regular cart checkout
+    buy_now_product_id = request.session.get('buy_now_product_id')
+    buy_now_quantity = request.session.get('buy_now_quantity', 1)
+    
+    # STEP 6: Calculate total amount based on checkout type
     amount = 0
     shipping_amount = 40  # Fixed shipping charge
-    for p in cart_items:
-        amount += p.total_cost  # Calculate total cost of all products
+    
+    if buy_now_product_id:
+        # Buy Now checkout - single product
+        try:
+            product = Product.objects.get(pk=buy_now_product_id)
+            amount = product.discounted_price * buy_now_quantity
+            # Create a temporary cart_items list for template rendering
+            class BuyNowItem:
+                def __init__(self, product, quantity):
+                    self.product = product
+                    self.quantity = quantity
+                    self.total_cost = product.discounted_price * quantity
+            
+            cart_items = [BuyNowItem(product, buy_now_quantity)]
+            is_buy_now = True
+        except Product.DoesNotExist:
+            messages.error(request, 'Product not found.')
+            # Clear invalid session data
+            if 'buy_now_product_id' in request.session:
+                del request.session['buy_now_product_id']
+            if 'buy_now_quantity' in request.session:
+                del request.session['buy_now_quantity']
+            return redirect('home')
+    else:
+        # Regular cart checkout
+        cart_items = cart.objects.filter(user=user)
+        if not cart_items:
+            messages.warning(request, 'Your cart is empty.')
+            return redirect('show-cart')
+        for p in cart_items:
+            amount += p.total_cost  # Calculate total cost of all products
+        is_buy_now = False
+    
     totalamount = amount + shipping_amount  # Add shipping to get final amount
     
-    # STEP 4: Convert amount to paise (Razorpay requires amount in smallest currency unit)
+    # STEP 7: Convert amount to paise (Razorpay requires amount in smallest currency unit)
     razoramount = int(totalamount * 100)  # ₹256 = 25600 paise
     
-    # STEP 5: Initialize Razorpay client with API credentials
+    # STEP 8: Initialize Razorpay client with API credentials
     client = razorpay.Client(auth=(settings.RAZOR_KEY_ID, settings.RAZOR_KEY_SECRET))
     
-    # STEP 6: Prepare order data for Razorpay
+    # STEP 9: Prepare order data for Razorpay
     data = {
         "amount": razoramount,      # Amount in paise
         "currency": "INR",          # Indian Rupees
         "receipt": "order_rcptid_12"  # Internal order reference (can be dynamic)
     }
     
-    # STEP 7: Create order on Razorpay server - This generates a unique order_id
+    # STEP 8: Create order on Razorpay server - This generates a unique order_id
     # This must be done BEFORE showing payment modal to user
     payment_response = client.order.create(data=data)
     print(payment_response)
@@ -232,11 +289,11 @@ def checkout(request):
     #  'id': 'order_RbbSoOOag4InGB', 'notes': [], 'offer_id': None, 
     #  'receipt': 'order_rcptid_12', 'status': 'created'}
     
-    # STEP 8: Extract order_id and status from Razorpay response
+    # STEP 9: Extract order_id and status from Razorpay response
     order_id = payment_response['id']  # Unique order ID from Razorpay (e.g., 'order_RbbSoOOag4InGB')
     order_status = payment_response['status']  # Should be 'created'
     
-    # STEP 9: Save Payment record in OUR database for tracking
+    # STEP 10: Save Payment record in OUR database for tracking
     # This links the Razorpay order_id with our user and amount
     if order_status == 'created':
         payment = Payment(
@@ -283,25 +340,53 @@ def payment_done(request):
         payment.paid = True  # Mark payment as completed
         payment.save()  # Save changes to database
         
-        # STEP 17: Process cart items and create OrderPlaced records
-        cart_items = cart.objects.filter(user=user)  # Get all items in user's cart
+        # STEP 17: Check if this is a Buy Now order or regular cart order
+        buy_now_product_id = request.session.get('buy_now_product_id')
+        buy_now_quantity = request.session.get('buy_now_quantity', 1)
         
-        # STEP 18: Create individual OrderPlaced record for each cart item
-        for c in cart_items:
-            OrderPlaced(
-                user=user,              # User who placed the order
-                customer=customer,      # Delivery address
-                product=c.product,      # Product ordered
-                quantity=c.quantity,    # Quantity ordered
-                payment=payment         # Link to Payment record
-            ).save()  # Save order to database
+        if buy_now_product_id:
+            # Buy Now order - create single OrderPlaced record
+            try:
+                product = Product.objects.get(pk=buy_now_product_id)
+                OrderPlaced(
+                    user=user,              # User who placed the order
+                    customer=customer,      # Delivery address
+                    product=product,        # Product ordered
+                    quantity=buy_now_quantity,  # Quantity ordered
+                    payment=payment         # Link to Payment record
+                ).save()  # Save order to database
+                
+                # Clear buy now session data
+                del request.session['buy_now_product_id']
+                if 'buy_now_quantity' in request.session:
+                    del request.session['buy_now_quantity']
+                
+                messages.success(request, 'Payment successful! Your order has been placed.')
+                return redirect('orders')
+                
+            except Product.DoesNotExist:
+                messages.error(request, 'Product not found.')
+                return redirect('home')
+        else:
+            # Regular cart checkout - process cart items and create OrderPlaced records
+            cart_items = cart.objects.filter(user=user)  # Get all items in user's cart
             
-            # STEP 19: Delete item from cart after order is placed
-            c.delete()  # Remove from cart
-        
-        # STEP 20: Show success message and redirect to orders page
-        messages.success(request, 'Payment successful! Your order has been placed.')
-        return redirect('orders')  # Redirect to view all orders
+            # STEP 18: Create individual OrderPlaced record for each cart item
+            for c in cart_items:
+                OrderPlaced(
+                    user=user,              # User who placed the order
+                    customer=customer,      # Delivery address
+                    product=c.product,      # Product ordered
+                    quantity=c.quantity,    # Quantity ordered
+                    payment=payment         # Link to Payment record
+                ).save()  # Save order to database
+                
+                # STEP 19: Delete item from cart after order is placed
+                c.delete()  # Remove from cart
+            
+            # STEP 20: Show success message and redirect to orders page
+            messages.success(request, 'Payment successful! Your order has been placed.')
+            return redirect('orders')  # Redirect to view all orders
         
     # STEP 21: Handle errors gracefully
     except Payment.DoesNotExist:
