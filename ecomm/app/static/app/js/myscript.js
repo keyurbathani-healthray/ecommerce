@@ -70,7 +70,38 @@ $(document).ready(function () {
       success: function (data) {
         document.getElementById("amount").innerText = data.amount;
         document.getElementById("totalamount").innerText = data.totalamount;
+
+        // Remove the item from DOM
         eml.parentNode.parentNode.parentNode.parentNode.remove();
+
+        // Check if cart is now empty
+        var cartContainer = document.getElementById("cart-items-container");
+        if (cartContainer && cartContainer.children.length === 0) {
+          // Hide the entire cart content and order summary
+          var cartContentRow = document.getElementById("cart-content-row");
+          var emptyCartTemplate = document.getElementById(
+            "empty-cart-template"
+          );
+
+          if (cartContentRow) {
+            cartContentRow.style.display = "none";
+          }
+
+          // Show empty cart message
+          if (emptyCartTemplate) {
+            emptyCartTemplate.classList.remove("d-none");
+          }
+        } else {
+          // Update the cart items count badge
+          var remainingItems = cartContainer
+            ? cartContainer.children.length
+            : 0;
+          var cartBadge = document.getElementById("cart-items-badge");
+          if (cartBadge && remainingItems > 0) {
+            cartBadge.textContent =
+              remainingItems + " Item" + (remainingItems > 1 ? "s" : "");
+          }
+        }
       },
     });
   });

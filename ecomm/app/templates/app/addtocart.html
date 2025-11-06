@@ -15,17 +15,17 @@
             </div>
         </div>
 
-        <div class="row g-4">
+        <div id="cart-content-row" class="row g-4">
             <!-- Cart Items Section -->
             <div class="col-lg-8">
                 <div class="card shadow-sm border-0">
                     <div class="card-header bg-success text-white py-3">
                         <h4 class="mb-0">
                             <i class="fas fa-box me-2"></i>Cart Items 
-                            <span class="badge bg-light text-success float-end">{{cart_items|length}} Item{% if cart_items|length > 1 %}s{% endif %}</span>
+                            <span id="cart-items-badge" class="badge bg-light text-success float-end">{{cart_items|length}} Item{% if cart_items|length > 1 %}s{% endif %}</span>
                         </h4>
                     </div>
-                    <div class="card-body p-4">
+                    <div id="cart-items-container" class="card-body p-4">
                         {% for item in cart_items %}
                         <div class="row align-items-center border-bottom pb-4 mb-4">
                             <!-- Product Image -->
@@ -84,7 +84,7 @@
 
             <!-- Order Summary Section -->
             <div class="col-lg-4">
-                <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+                <div id="order-summary" class="card shadow-sm border-0 sticky-top" style="top: 80px;">
                     <div class="card-header bg-primary text-white py-3">
                         <h4 class="mb-0">
                             <i class="fas fa-file-invoice-dollar me-2"></i>Order Summary
@@ -138,7 +138,7 @@
         </div>
     {% else %}
         <!-- Empty Cart State -->
-        <div class="row">
+        <div id="empty-cart-message" class="row">
             <div class="col-12">
                 <div class="card shadow-sm border-0 text-center py-5">
                     <div class="card-body">
@@ -152,6 +152,24 @@
                 </div>
             </div>
         </div>
+    {% endif %}
+    
+    <!-- Hidden Empty Cart Template (shown when all items removed dynamically) -->
+    {% if cart_items %}
+    <div id="empty-cart-template" class="row d-none">
+        <div class="col-12">
+            <div class="card shadow-sm border-0 text-center py-5">
+                <div class="card-body">
+                    <i class="fas fa-shopping-cart fa-5x text-muted mb-4"></i>
+                    <h1 class="display-5 mb-3">Your Cart is Empty</h1>
+                    <p class="text-muted mb-4">Looks like you haven't added anything to your cart yet.</p>
+                    <a href="{% url 'home' %}" class="btn btn-success btn-lg">
+                        <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
     {% endif %}
 </div>
 
