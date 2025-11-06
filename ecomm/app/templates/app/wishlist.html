@@ -1,0 +1,154 @@
+{% extends 'app/layout.html' %}
+{% load static %}
+{% block title %}My Wishlist{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    {% if wishlist_items %}
+        <!-- Page Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="text-center mb-2">
+                    <i class="fas fa-heart text-danger me-2"></i>My Wishlist
+                </h1>
+                <p class="text-center text-muted">Your favorite products saved for later</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            {% for item in wishlist_items %}
+            <div class="col-lg-3 col-md-4 col-sm-6" id="wishlist-item-{{ item.id }}">
+                <div class="card h-100 shadow-sm border-0">
+                    <!-- Product Image -->
+                    <div class="position-relative">
+                        <a href="{% url 'product_details' item.product.id %}">
+                            <img src="{{ item.product.product_image.url }}" 
+                                 class="card-img-top" 
+                                 alt="{{ item.product.title }}"
+                                 style="height: 250px; object-fit: cover;">
+                        </a>
+                        
+                        <!-- Discount Badge -->
+                        {% if item.product.selling_price > item.product.discounted_price %}
+                        <span class="position-absolute top-0 end-0 m-2 badge bg-danger">
+                            {% widthratio item.product.selling_price|add:"0"|floatformat:"0"|add:"0" item.product.discounted_price|add:"0"|floatformat:"0"|add:"0" 100 as discount %}
+                            {{ discount|floatformat:"0" }}% OFF
+                        </span>
+                        {% endif %}
+                        
+                        <!-- Remove Button -->
+                        <button class="btn btn-danger btn-sm position-absolute top-0 start-0 m-2 remove-wishlist-btn" 
+                                data-wishlist-id="{{ item.id }}"
+                                title="Remove from Wishlist">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="card-body d-flex flex-column">
+                        <!-- Product Title -->
+                        <h6 class="card-title fw-bold text-dark mb-2">
+                            <a href="{% url 'product_details' item.product.id %}" class="text-decoration-none text-dark">
+                                {{ item.product.title|truncatewords:6 }}
+                            </a>
+                        </h6>
+                        
+                        <!-- Category Badge -->
+                        <div class="mb-2">
+                            <span class="badge bg-secondary bg-opacity-25 text-dark">
+                                {{ item.product.get_category_display }}
+                            </span>
+                        </div>
+                        
+                        <!-- Price -->
+                        <div class="mb-3">
+                            <h5 class="text-success fw-bold mb-0">
+                                <i class="fas fa-rupee-sign"></i>{{ item.product.discounted_price }}
+                            </h5>
+                            {% if item.product.selling_price > item.product.discounted_price %}
+                            <small class="text-muted text-decoration-line-through">
+                                <i class="fas fa-rupee-sign"></i>{{ item.product.selling_price }}
+                            </small>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div class="mt-auto">
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'add-to-cart' item.product.id %}" class="btn btn-success btn-sm">
+                                    <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                                </a>
+                                <a href="{% url 'product_details' item.product.id %}" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-eye me-1"></i>View Details
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Continue Shopping Button -->
+        <div class="text-center mt-5">
+            <a href="{% url 'home' %}" class="btn btn-outline-danger btn-lg">
+                <i class="fas fa-arrow-left me-2"></i>Continue Shopping
+            </a>
+        </div>
+        
+    {% else %}
+        <!-- Empty Wishlist State -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm border-0 text-center py-5">
+                    <div class="card-body">
+                        <i class="fas fa-heart fa-5x text-muted mb-4"></i>
+                        <h1 class="display-5 mb-3">Your Wishlist is Empty</h1>
+                        <p class="text-muted mb-4">Save your favorite items here for easy access later.</p>
+                        <a href="{% url 'home' %}" class="btn btn-danger btn-lg">
+                            <i class="fas fa-shopping-bag me-2"></i>Start Shopping
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<script>
+// Remove wishlist item with AJAX
+$(document).on('click', '.remove-wishlist-btn', function(e) {
+    e.preventDefault();
+    var wishlistId = $(this).data('wishlist-id');
+    var itemElement = $('#wishlist-item-' + wishlistId);
+    
+    $.ajax({
+        type: 'GET',
+        url: '/remove-from-wishlist/' + wishlistId + '/',
+        success: function(data) {
+            if (data.success) {
+                // Update navbar wishlist badge
+                var wishlistBadge = document.getElementById("wishlist-badge");
+                if (wishlistBadge && data.wishlist_count !== undefined) {
+                    wishlistBadge.childNodes[0].textContent = data.wishlist_count;
+                }
+                
+                // Remove item with animation
+                itemElement.fadeOut(300, function() {
+                    $(this).remove();
+                    
+                    // Check if wishlist is now empty
+                    if ($('[id^="wishlist-item-"]').length === 0) {
+                        // Reload page to show empty state
+                        location.reload();
+                    }
+                });
+            }
+        },
+        error: function() {
+            alert('Error removing item from wishlist');
+        }
+    });
+});
+</script>
+
+{% endblock %}

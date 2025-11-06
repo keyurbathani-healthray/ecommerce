@@ -1,6 +1,6 @@
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from .models import OrderPlaced, Payment, Product, Customer, cart , get_object_or_404
+from .models import OrderPlaced, Payment, Product, Customer, cart, whishlist, get_object_or_404
 from django.views import View
 from .forms import CustomerProfileForm, CustomerRegistrationForm, CustomerLoginForm, CustomPasswordChangeForm
 from django.contrib import messages
@@ -58,7 +58,11 @@ class CategoryTitleView(View):
 class ProductDetailView(View):
     def get(self, request, pk):
         product = Product.objects.get(pk=pk)
-        return render(request, 'app/product_details.html', locals())
+        # Check if product is in user's wishlist
+        in_wishlist = False
+        if request.user.is_authenticated:
+            in_wishlist = whishlist.objects.filter(user=request.user, product=product).exists()
+        return render(request, 'app/product_details.html', {'product': product, 'in_wishlist': in_wishlist})
     
 
 # ✅ Registration View
@@ -467,3 +471,80 @@ def remove_cart(request):
             'cart_count': cart_count
         }
         return JsonResponse(data)
+
+# Wishlist Views
+def add_to_wishlist(request, pk):
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Please log in to add items to wishlist.')
+        return redirect('customer-login')
+    
+    user = request.user
+    product = get_object_or_404(Product, pk=pk)
+    
+    # Check if item already exists in wishlist
+    wishlist_item, created = whishlist.objects.get_or_create(user=user, product=product)
+    
+    if created:
+        messages.success(request, f'{product.title} added to your wishlist!')
+    else:
+        messages.info(request, f'{product.title} is already in your wishlist.')
+    
+    return redirect('product_details', pk=pk)
+
+def show_wishlist(request):
+    if not request.user.is_authenticated:
+        messages.warning(request, 'Please log in to view your wishlist.')
+        return redirect('customer-login')
+    
+    user = request.user
+    wishlist_items = whishlist.objects.filter(user=user)
+    return render(request, 'app/wishlist.html', {'wishlist_items': wishlist_items})
+
+def remove_from_wishlist(request, pk):
+    if not request.user.is_authenticated:
+        return JsonResponse({'success': False, 'message': 'Please log in'})
+    
+    try:
+        wishlist_item = whishlist.objects.get(Q(id=pk) & Q(user=request.user))
+        wishlist_item.delete()
+        wishlist_count = whishlist.objects.filter(user=request.user).count()
+        return JsonResponse({
+            'success': True,
+            'message': 'Item removed from wishlist',
+            'wishlist_count': wishlist_count
+        })
+    except whishlist.DoesNotExist:
+        return JsonResponse({'success': False, 'message': 'Item not found'})
+
+def plus_wishlist(request):
+    if request.method == 'GET':
+        prod_id = request.GET.get('prod_id')
+        user = request.user
+        product = get_object_or_404(Product, id=prod_id)
+        
+        # Add to wishlist
+        wishlist_item, created = whishlist.objects.get_or_create(user=user, product=product)
+        wishlist_count = whishlist.objects.filter(user=user).count()
+        
+        return JsonResponse({
+            'message': 'Added to wishlist' if created else 'Already in wishlist',
+            'wishlist_count': wishlist_count
+        })
+
+def minus_wishlist(request):
+    if request.method == 'GET':
+        prod_id = request.GET.get('prod_id')
+        try:
+            wishlist_item = whishlist.objects.get(Q(product__id=prod_id) & Q(user=request.user))
+            wishlist_item.delete()
+            wishlist_count = whishlist.objects.filter(user=request.user).count()
+            return JsonResponse({
+                'message': 'Removed from wishlist',
+                'wishlist_count': wishlist_count
+            })
+        except whishlist.DoesNotExist:
+            wishlist_count = whishlist.objects.filter(user=request.user).count()
+            return JsonResponse({
+                'message': 'Item not in wishlist',
+                'wishlist_count': wishlist_count
+            })

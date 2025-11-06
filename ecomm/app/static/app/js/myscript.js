@@ -126,6 +126,7 @@ $(document).ready(function () {
 
   $(document).on("click", ".plus-wishlist", function () {
     var id = $(this).attr("pid").toString();
+    var button = $(this);
     $.ajax({
       type: "GET",
       url: "/pluswishlist",
@@ -133,14 +134,23 @@ $(document).ready(function () {
         prod_id: id,
       },
       success: function (data) {
-        //alert(data.message)
-        window.location.href = `http://localhost:8000/product-detail/${id}`;
+        // Update navbar wishlist badge
+        var wishlistBadge = document.getElementById("wishlist-badge");
+        if (wishlistBadge && data.wishlist_count !== undefined) {
+          wishlistBadge.childNodes[0].textContent = data.wishlist_count;
+        }
+
+        // Change button appearance
+        button.removeClass("btn-outline-danger plus-wishlist");
+        button.addClass("btn-danger minus-wishlist");
+        button.html('<i class="fas fa-heart me-1"></i>Remove from Wishlist');
       },
     });
   });
 
   $(document).on("click", ".minus-wishlist", function () {
     var id = $(this).attr("pid").toString();
+    var button = $(this);
     $.ajax({
       type: "GET",
       url: "/minuswishlist",
@@ -148,7 +158,16 @@ $(document).ready(function () {
         prod_id: id,
       },
       success: function (data) {
-        window.location.href = `http://localhost:8000/product-detail/${id}`;
+        // Update navbar wishlist badge
+        var wishlistBadge = document.getElementById("wishlist-badge");
+        if (wishlistBadge && data.wishlist_count !== undefined) {
+          wishlistBadge.childNodes[0].textContent = data.wishlist_count;
+        }
+
+        // Change button appearance
+        button.removeClass("btn-danger minus-wishlist");
+        button.addClass("btn-outline-danger plus-wishlist");
+        button.html('<i class="far fa-heart me-1"></i>Add to Wishlist');
       },
     });
   });

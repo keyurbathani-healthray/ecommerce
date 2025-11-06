@@ -203,11 +203,11 @@
 
     <!-- Wishlist -->
     <li class="nav-item mx-2">
-      <a href="#" class="nav-link text-white position-relative">
+      <a href="{% url 'show-wishlist' %}" class="nav-link text-white position-relative">
         <i class="fas fa-heart fs-5"></i>
         {% if request.user.is_authenticated %}
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-            0
+          <span id="wishlist-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+            {{ request.user.whishlist_set.count|default:"0" }}
             <span class="visually-hidden">items in wishlist</span>
           </span>
         {% endif %}

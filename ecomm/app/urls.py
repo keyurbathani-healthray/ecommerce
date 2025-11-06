@@ -29,6 +29,13 @@ urlpatterns = [
    path('minuscart/', views.minus_cart, name='minuscart'),
    path('removecart/', views.remove_cart, name='removecart'),
 
+   # Wishlist URLs
+   path('wishlist/', views.show_wishlist, name='show-wishlist'),
+   path('add-to-wishlist/<int:pk>/', views.add_to_wishlist, name='add-to-wishlist'),
+   path('remove-from-wishlist/<int:pk>/', views.remove_from_wishlist, name='remove-from-wishlist'),
+   path('pluswishlist/', views.plus_wishlist, name='pluswishlist'),
+   path('minuswishlist/', views.minus_wishlist, name='minuswishlist'),
+
 
    # Authentication URLs
    path('register/', views.customer_registration, name='customer-registration'),

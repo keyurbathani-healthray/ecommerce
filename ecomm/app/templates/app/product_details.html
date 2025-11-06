@@ -135,9 +135,21 @@
 
                         <!-- Additional Actions -->
                         <div class="d-flex gap-2 mt-3">
-                            <button class="btn btn-outline-secondary flex-fill">
-                                <i class="far fa-heart me-1"></i>Wishlist
-                            </button>
+                            {% if request.user.is_authenticated %}
+                                {% if in_wishlist %}
+                                    <button class="btn btn-danger flex-fill minus-wishlist" pid="{{ product.id }}">
+                                        <i class="fas fa-heart me-1"></i>Remove from Wishlist
+                                    </button>
+                                {% else %}
+                                    <button class="btn btn-outline-danger flex-fill plus-wishlist" pid="{{ product.id }}">
+                                        <i class="far fa-heart me-1"></i>Add to Wishlist
+                                    </button>
+                                {% endif %}
+                            {% else %}
+                                <a href="{% url 'customer-login' %}" class="btn btn-outline-danger flex-fill">
+                                    <i class="far fa-heart me-1"></i>Add to Wishlist
+                                </a>
+                            {% endif %}
                             <button class="btn btn-outline-secondary flex-fill">
                                 <i class="fas fa-share-alt me-1"></i>Share
                             </button>
