@@ -87,93 +87,138 @@
                             </div>
 
                             <!-- Order Status & Progress -->
-                            <div class="col-lg-4 col-md-4">
-                                <div class="card bg-light border-0">
+                            <div class="col-12">
+                                <div class="card bg-light border-0 mt-3">
                                     <div class="card-body">
-                                        <h6 class="card-subtitle mb-3 text-center">
-                                            <i class="fas fa-shipping-fast"></i> Order Status
+                                        <h6 class="mb-3 fw-bold">
+                                            <i class="fas fa-shipping-fast"></i> Order Tracking
                                         </h6>
                                         
-                                        <p class="text-center mb-3">
+                                        <!-- Horizontal Order Status Timeline -->
+                                        {% if order.status != 'Cancelled' %}
+                                        <div class="d-flex justify-content-between align-items-start position-relative px-3">
+                                            <!-- Background Line (Gray) -->
+                                            <div class="position-absolute top-0 start-0 w-100 d-flex align-items-center" style="height: 40px; padding: 0 2.5rem;">
+                                                <div class="w-100 bg-secondary bg-opacity-25" style="height: 4px;"></div>
+                                            </div>
+                                            
+                                            <!-- Progress Line (Colored) - Fills based on status -->
+                                            <div class="position-absolute top-0 start-0 d-flex align-items-center" style="height: 40px; padding: 0 2.5rem; 
+                                                {% if order.status == 'Pending' %}width: 20%;
+                                                {% elif order.status == 'Accepted' %}width: 40%;
+                                                {% elif order.status == 'Packed' %}width: 60%;
+                                                {% elif order.status == 'On The Way' %}width: 80%;
+                                                {% elif order.status == 'Delivered' %}width: 100%;
+                                                {% endif %}">
+                                                <div class="w-100 
+                                                    {% if order.status == 'Pending' %}bg-secondary
+                                                    {% elif order.status == 'Accepted' %}bg-primary
+                                                    {% elif order.status == 'Packed' %}bg-info
+                                                    {% elif order.status == 'On The Way' %}bg-warning
+                                                    {% elif order.status == 'Delivered' %}bg-success
+                                                    {% endif %}" style="height: 4px;"></div>
+                                            </div>
+                                            
+                                            <!-- Step 1: Pending -->
+                                            <div class="text-center position-relative" style="z-index: 1; flex: 1;">
+                                                <div class="mb-2">
+                                                    <div class="{% if order.status == 'Pending' or order.status == 'Accepted' or order.status == 'Packed' or order.status == 'On The Way' or order.status == 'Delivered' %}bg-secondary text-white{% else %}bg-light text-muted border{% endif %} rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-clock"></i>
+                                                    </div>
+                                                </div>
+                                                <small class="d-block {% if order.status == 'Pending' %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                                                    Pending
+                                                </small>
+                                            </div>
+
+                                            <!-- Step 2: Accepted -->
+                                            <div class="text-center position-relative" style="z-index: 1; flex: 1;">
+                                                <div class="mb-2">
+                                                    <div class="{% if order.status == 'Accepted' or order.status == 'Packed' or order.status == 'On The Way' or order.status == 'Delivered' %}bg-primary text-white{% else %}bg-light text-muted border{% endif %} rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </div>
+                                                </div>
+                                                <small class="d-block {% if order.status == 'Accepted' %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                                                    Accepted
+                                                </small>
+                                            </div>
+
+                                            <!-- Step 3: Packed -->
+                                            <div class="text-center position-relative" style="z-index: 1; flex: 1;">
+                                                <div class="mb-2">
+                                                    <div class="{% if order.status == 'Packed' or order.status == 'On The Way' or order.status == 'Delivered' %}bg-info text-white{% else %}bg-light text-muted border{% endif %} rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-box"></i>
+                                                    </div>
+                                                </div>
+                                                <small class="d-block {% if order.status == 'Packed' %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                                                    Packed
+                                                </small>
+                                            </div>
+
+                                            <!-- Step 4: On The Way -->
+                                            <div class="text-center position-relative" style="z-index: 1; flex: 1;">
+                                                <div class="mb-2">
+                                                    <div class="{% if order.status == 'On The Way' or order.status == 'Delivered' %}bg-warning text-dark{% else %}bg-light text-muted border{% endif %} rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-truck"></i>
+                                                    </div>
+                                                </div>
+                                                <small class="d-block {% if order.status == 'On The Way' %}fw-bold text-dark{% else %}text-muted{% endif %}">
+                                                    On The Way
+                                                </small>
+                                            </div>
+
+                                            <!-- Step 5: Delivered -->
+                                            <div class="text-center position-relative" style="z-index: 1; flex: 1;">
+                                                <div class="mb-2">
+                                                    <div class="{% if order.status == 'Delivered' %}bg-success text-white{% else %}bg-light text-muted border{% endif %} rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                                        <i class="fas fa-check-double"></i>
+                                                    </div>
+                                                </div>
+                                                <small class="d-block {% if order.status == 'Delivered' %}fw-bold text-success{% else %}text-muted{% endif %}">
+                                                    Delivered
+                                                </small>
+                                            </div>
+                                        </div>
+                                        {% else %}
+                                        <!-- Cancelled Status -->
+                                        <div class="text-center py-3">
+                                            <div class="bg-danger text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 60px; height: 60px;">
+                                                <i class="fas fa-times-circle fa-2x"></i>
+                                            </div>
+                                            <h6 class="text-danger fw-bold mb-1">Order Cancelled</h6>
+                                            <small class="text-muted">This order has been cancelled</small>
+                                        </div>
+                                        {% endif %}
+
+                                        <!-- Current Status Badge -->
+                                        <div class="text-center mt-4 pt-3 border-top">
+                                            <small class="text-muted d-block mb-2">Current Status</small>
                                             {% if order.status == 'Pending' %}
-                                                <span class="badge bg-secondary fs-6">
+                                                <span class="badge bg-secondary fs-6 px-3 py-2">
                                                     <i class="fas fa-clock"></i> Pending
                                                 </span>
                                             {% elif order.status == 'Accepted' %}
-                                                <span class="badge bg-primary fs-6">
+                                                <span class="badge bg-primary fs-6 px-3 py-2">
                                                     <i class="fas fa-check-circle"></i> Accepted
                                                 </span>
                                             {% elif order.status == 'Packed' %}
-                                                <span class="badge bg-info fs-6">
+                                                <span class="badge bg-info fs-6 px-3 py-2">
                                                     <i class="fas fa-box"></i> Packed
                                                 </span>
                                             {% elif order.status == 'On The Way' %}
-                                                <span class="badge bg-warning text-dark fs-6">
+                                                <span class="badge bg-warning text-dark fs-6 px-3 py-2">
                                                     <i class="fas fa-truck"></i> On The Way
                                                 </span>
                                             {% elif order.status == 'Delivered' %}
-                                                <span class="badge bg-success fs-6">
+                                                <span class="badge bg-success fs-6 px-3 py-2">
                                                     <i class="fas fa-check-double"></i> Delivered
                                                 </span>
                                             {% elif order.status == 'Cancelled' %}
-                                                <span class="badge bg-danger fs-6">
+                                                <span class="badge bg-danger fs-6 px-3 py-2">
                                                     <i class="fas fa-times-circle"></i> Cancelled
                                                 </span>
                                             {% endif %}
-                                        </p>
-
-                                        <!-- Progress Bar -->
-                                        {% if order.status == 'Pending' %}
-                                            <div class="progress" style="height: 25px;">
-                                                <div class="progress-bar bg-secondary" role="progressbar" 
-                                                     style="width: 10%" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100">
-                                                    10%
-                                                </div>
-                                            </div>
-                                            <small class="text-muted d-block text-center mt-2">Order placed</small>
-                                        {% elif order.status == 'Accepted' %}
-                                            <div class="progress" style="height: 25px;">
-                                                <div class="progress-bar" role="progressbar" 
-                                                     style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
-                                                    25%
-                                                </div>
-                                            </div>
-                                            <small class="text-muted d-block text-center mt-2">Order confirmed</small>
-                                        {% elif order.status == 'Packed' %}
-                                            <div class="progress" style="height: 25px;">
-                                                <div class="progress-bar bg-info" role="progressbar" 
-                                                     style="width: 50%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
-                                                    50%
-                                                </div>
-                                            </div>
-                                            <small class="text-muted d-block text-center mt-2">Ready for dispatch</small>
-                                        {% elif order.status == 'On The Way' %}
-                                            <div class="progress" style="height: 25px;">
-                                                <div class="progress-bar bg-warning" role="progressbar" 
-                                                     style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100">
-                                                    75%
-                                                </div>
-                                            </div>
-                                            <small class="text-muted d-block text-center mt-2">Out for delivery</small>
-                                        {% elif order.status == 'Delivered' %}
-                                            <div class="progress" style="height: 25px;">
-                                                <div class="progress-bar bg-success" role="progressbar" 
-                                                     style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-                                                    100%
-                                                </div>
-                                            </div>
-                                            <small class="text-success d-block text-center mt-2 fw-bold">
-                                                <i class="fas fa-check"></i> Completed
-                                            </small>
-                                        {% elif order.status == 'Cancelled' %}
-                                            <div class="progress" style="height: 25px;">
-                                                <div class="progress-bar bg-danger" role="progressbar" 
-                                                     style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-                                                    Cancelled
-                                                </div>
-                                            </div>
-                                            <small class="text-danger d-block text-center mt-2">Order cancelled</small>
-                                        {% endif %}
+                                        </div>
                                     </div>
                                 </div>
                             </div>
