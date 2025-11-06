@@ -193,7 +193,7 @@
       <a href="{% url 'show-cart' %}" class="nav-link text-white position-relative">
         <i class="fas fa-shopping-cart fs-5"></i>
         {% if request.user.is_authenticated %}
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+          <span id="cart-badge" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
             {{ request.user.cart_set.count|default:"0" }}
             <span class="visually-hidden">items in cart</span>
           </span>

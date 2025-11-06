@@ -37,6 +37,12 @@ $(document).ready(function () {
         eml.innerText = data.quantity;
         document.getElementById("amount").innerText = data.amount;
         document.getElementById("totalamount").innerText = data.totalamount;
+
+        // Update navbar cart badge
+        var navbarCartBadge = document.getElementById("cart-badge");
+        if (navbarCartBadge && data.cart_count !== undefined) {
+          navbarCartBadge.childNodes[0].textContent = data.cart_count;
+        }
       },
     });
   });
@@ -54,6 +60,12 @@ $(document).ready(function () {
         eml.innerText = data.quantity;
         document.getElementById("amount").innerText = data.amount;
         document.getElementById("totalamount").innerText = data.totalamount;
+
+        // Update navbar cart badge
+        var navbarCartBadge = document.getElementById("cart-badge");
+        if (navbarCartBadge && data.cart_count !== undefined) {
+          navbarCartBadge.childNodes[0].textContent = data.cart_count;
+        }
       },
     });
   });
@@ -70,6 +82,12 @@ $(document).ready(function () {
       success: function (data) {
         document.getElementById("amount").innerText = data.amount;
         document.getElementById("totalamount").innerText = data.totalamount;
+
+        // Update navbar cart badge
+        var navbarCartBadge = document.getElementById("cart-badge");
+        if (navbarCartBadge && data.cart_count !== undefined) {
+          navbarCartBadge.childNodes[0].textContent = data.cart_count;
+        }
 
         // Remove the item from DOM
         eml.parentNode.parentNode.parentNode.parentNode.remove();

@@ -332,10 +332,12 @@ def plus_cart(request):
         for p in cart_items:
             amount += p.total_cost
         totalamount = amount + shipping_amount
+        cart_count = cart_items.count()
         data = {
             'quantity': c.quantity,
             'amount': amount,
-            'totalamount': totalamount
+            'totalamount': totalamount,
+            'cart_count': cart_count
         }
         return JsonResponse(data)
     
@@ -352,10 +354,12 @@ def minus_cart(request):
         for p in cart_items:
             amount += p.total_cost
         totalamount = amount + shipping_amount
+        cart_count = cart_items.count()
         data = {
             'quantity': c.quantity,
             'amount': amount,
-            'totalamount': totalamount
+            'totalamount': totalamount,
+            'cart_count': cart_count
         }
         return JsonResponse(data)
     
@@ -370,8 +374,10 @@ def remove_cart(request):
         for p in cart_items:
             amount += p.total_cost
         totalamount = amount + shipping_amount
+        cart_count = cart_items.count()
         data = {
             'amount': amount,
-            'totalamount': totalamount
+            'totalamount': totalamount,
+            'cart_count': cart_count
         }
         return JsonResponse(data)
