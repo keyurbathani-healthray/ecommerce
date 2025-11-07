@@ -129,13 +129,17 @@
           </ul>
 
           <!-- Search Form -->
-          <form class="d-flex me-3 my-2 my-lg-0" role="search">
+          <form class="d-flex me-3 my-2 my-lg-0" role="search" action="{% url 'search-results' %}" method="GET" id="search-form">
             <div class="input-group">
               <input
                 class="form-control border-0"
                 type="search"
                 placeholder="Search products..."
                 aria-label="Search"
+                name="q"
+                id="search-input"
+                autocomplete="off"
+                value="{{ request.GET.q|default:'' }}"
               />
               <button class="btn btn-light text-success" type="submit">
                 <i class="fas fa-search"></i>

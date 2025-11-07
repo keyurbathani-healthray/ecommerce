@@ -36,6 +36,9 @@ urlpatterns = [
    path('pluswishlist/', views.plus_wishlist, name='pluswishlist'),
    path('minuswishlist/', views.minus_wishlist, name='minuswishlist'),
 
+   # Search URL
+   path('search/', views.search_results, name='search-results'),
+
 
    # Authentication URLs
    path('register/', views.customer_registration, name='customer-registration'),

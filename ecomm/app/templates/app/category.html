@@ -96,7 +96,9 @@
                                             </small>
                                             {% if prod.selling_price > prod.discounted_price %}
                                                 <span class="badge bg-warning text-dark ms-2">
-                                                    {% widthratio prod.selling_price|add:0|add:prod.discounted_price|floatformat:0|add:"0" prod.selling_price 100 %}% OFF
+                                                    {% widthratio prod.discounted_price prod.selling_price 100 as percent_paid %}
+                                                    {% widthratio percent_paid 1 -1 as negative_percent %}
+                                                    {{ negative_percent|add:100 }}% OFF
                                                 </span>
                                             {% endif %}
                                         </div>

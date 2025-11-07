@@ -1,0 +1,119 @@
+{% extends 'app/layout.html' %}
+{% load static %}
+{% block title %}Search Results{% if query %} - {{ query }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <!-- Page Header -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">
+                <i class="fas fa-search me-2"></i>Search Results
+            </h1>
+            <p class="text-muted">
+                Showing results for: <strong>"{{ query }}"</strong>
+                {% if products %}
+                    <span class="badge bg-success ms-2">{{ products.count }} product{{ products.count|pluralize }}</span>
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    {% if products %}
+            <!-- Products Grid -->
+            <div class="row g-4">
+                {% for product in products %}
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="card h-100 shadow-sm border-0 hover-card">
+                        <!-- Product Image -->
+                        <div class="position-relative">
+                            <a href="{% url 'product_details' product.id %}">
+                                <img src="{{ product.product_image.url }}" 
+                                     class="card-img-top" 
+                                     alt="{{ product.title }}"
+                                     style="height: 250px; object-fit: cover;">
+                            </a>
+                            
+                            <!-- Discount Badge -->
+                            {% if product.selling_price > product.discounted_price %}
+                            <span class="position-absolute top-0 end-0 m-2 badge bg-danger">
+                                {% widthratio product.discounted_price product.selling_price 100 as percent_paid %}
+                                {% widthratio percent_paid 1 -1 as negative_percent %}
+                                {{ negative_percent|add:100 }}% OFF
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-body d-flex flex-column">
+                            <!-- Product Title -->
+                            <h6 class="card-title fw-bold text-dark mb-2">
+                                <a href="{% url 'product_details' product.id %}" class="text-decoration-none text-dark">
+                                    {{ product.title|truncatewords:6 }}
+                                </a>
+                            </h6>
+                            
+                            <!-- Category Badge -->
+                            <div class="mb-2">
+                                <span class="badge bg-secondary bg-opacity-25 text-dark">
+                                    {{ product.get_category_display }}
+                                </span>
+                            </div>
+                            
+                            <!-- Price -->
+                            <div class="mb-3">
+                                <h5 class="text-success fw-bold mb-0">
+                                    <i class="fas fa-rupee-sign"></i>{{ product.discounted_price }}
+                                </h5>
+                                {% if product.selling_price > product.discounted_price %}
+                                <small class="text-muted text-decoration-line-through">
+                                    <i class="fas fa-rupee-sign"></i>{{ product.selling_price }}
+                                </small>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Action Buttons -->
+                            <div class="mt-auto">
+                                <div class="d-grid gap-2">
+                                    <a href="{% url 'add-to-cart' product.id %}" class="btn btn-success btn-sm">
+                                        <i class="fas fa-shopping-cart me-1"></i>Add to Cart
+                                    </a>
+                                    <a href="{% url 'product_details' product.id %}" class="btn btn-outline-primary btn-sm">
+                                        <i class="fas fa-eye me-1"></i>View Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- No Results Found -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="text-center py-5">
+                        <div class="mb-4">
+                            <i class="fas fa-search text-muted" style="font-size: 80px;"></i>
+                        </div>
+                        <h3 class="text-muted mb-3">No Products Found</h3>
+                        <p class="text-muted mb-4">
+                            We couldn't find any products matching <strong>"{{ query }}"</strong>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+  
+</div>
+
+<style>
+.hover-card {
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.hover-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+</style>
+{% endblock %}

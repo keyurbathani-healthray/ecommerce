@@ -548,3 +548,28 @@ def minus_wishlist(request):
                 'message': 'Item not in wishlist',
                 'wishlist_count': wishlist_count
             })
+
+
+# Search Results Page View
+def search_results(request):
+    """
+    Display search results page.
+    Searches products by title and category only.
+    Redirects to home if no query provided.
+    """
+    query = request.GET.get('q', '').strip()
+    
+    # Redirect to home page if search query is empty
+    if not query:
+        return redirect('home')
+    
+    # Search only in title and category (not description)
+    products = Product.objects.filter(
+        Q(title__icontains=query) |
+        Q(category__icontains=query)
+    )
+    
+    return render(request, 'app/search_results.html', {
+        'products': products,
+        'query': query
+    })

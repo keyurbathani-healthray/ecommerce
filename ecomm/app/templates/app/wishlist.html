@@ -31,8 +31,9 @@
                         <!-- Discount Badge -->
                         {% if item.product.selling_price > item.product.discounted_price %}
                         <span class="position-absolute top-0 end-0 m-2 badge bg-danger">
-                            {% widthratio item.product.selling_price|add:"0"|floatformat:"0"|add:"0" item.product.discounted_price|add:"0"|floatformat:"0"|add:"0" 100 as discount %}
-                            {{ discount|floatformat:"0" }}% OFF
+                            {% widthratio item.product.discounted_price item.product.selling_price 100 as percent_paid %}
+                            {% widthratio percent_paid 1 -1 as negative_percent %}
+                            {{ negative_percent|add:100 }}% OFF
                         </span>
                         {% endif %}
                         

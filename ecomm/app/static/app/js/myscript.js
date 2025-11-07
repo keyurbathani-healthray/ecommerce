@@ -205,4 +205,42 @@ $(document).ready(function () {
       },
     });
   });
+
+  // ==================== SEARCH FUNCTIONALITY ====================
+
+  var searchInput = $("#search-input");
+  var searchForm = $("#search-form");
+  var clearSearchTimeout;
+
+  // Handle form submission
+  searchForm.on("submit", function (e) {
+    e.preventDefault();
+    var query = searchInput.val().trim();
+
+    if (query.length === 0) {
+      // Redirect to home page if search is empty
+      window.location.href = "/";
+    } else {
+      // Redirect to search results page with query
+      window.location.href = "/search/?q=" + encodeURIComponent(query);
+    }
+    return false;
+  });
+
+  // Detect when search box is cleared (only on search results page)
+  if (window.location.pathname === "/search/") {
+    searchInput.on("input", function () {
+      clearTimeout(clearSearchTimeout);
+      var query = $(this).val().trim();
+
+      // If search box is empty, redirect to home after a short delay
+      if (query.length === 0) {
+        clearSearchTimeout = setTimeout(function () {
+          window.location.href = "/";
+        }, 500); // 500ms delay
+      }
+    });
+  }
+
+  // ==================== END SEARCH FUNCTIONALITY ====================
 });
