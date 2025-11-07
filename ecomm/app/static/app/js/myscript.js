@@ -171,4 +171,38 @@ $(document).ready(function () {
       },
     });
   });
+
+  $(document).on("click", ".remove-wishlist-btn", function (e) {
+    e.preventDefault();
+    var wishlistId = $(this).data("wishlist-id");
+    var itemElement = $("#wishlist-item-" + wishlistId);
+
+    $.ajax({
+      type: "GET",
+      url: "/remove_from_wishlist/" + wishlistId + "/",
+      success: function (data) {
+        if (data.success) {
+          // Update navbar wishlist badge
+          var wishlistBadge = document.getElementById("wishlist-badge");
+          if (wishlistBadge && data.wishlist_count !== undefined) {
+            wishlistBadge.childNodes[0].textContent = data.wishlist_count;
+          }
+
+          // Remove item with animation
+          itemElement.fadeOut(300, function () {
+            $(this).remove();
+
+            // Check if wishlist is now empty
+            if ($('[id^="wishlist-item-"]').length === 0) {
+              // Reload page to show empty state
+              location.reload();
+            }
+          });
+        }
+      },
+      error: function () {
+        alert("Error removing item from wishlist");
+      },
+    });
+  });
 });
