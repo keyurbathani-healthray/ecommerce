@@ -100,12 +100,34 @@
                                 <span class="fw-bold" id="amount">Rs. {{amount}}</span>
                             </li>
                             
+                            <!-- SGST (5%) -->
+                            <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-3">
+                                <span class="text-muted">
+                                    <i class="fas fa-receipt me-2"></i>SGST (5%)
+                                </span>
+                                <span id="sgst" class="fw-semibold text-dark">Rs. {{ sgst|floatformat:2 }}</span>
+                            </li>
+                            
+                            <!-- CGST (5%) -->
+                            <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-3">
+                                <span class="text-muted">
+                                    <i class="fas fa-receipt me-2"></i>CGST (5%)
+                                </span>
+                                <span id="cgst" class="fw-semibold text-dark">Rs. {{ cgst|floatformat:2 }}</span>
+                            </li>
+                            
                             <!-- Shipping -->
                             <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0 py-3">
                                 <span class="text-muted">
                                     <i class="fas fa-shipping-fast me-2"></i>Shipping
                                 </span>
-                                <span class="text-success fw-semibold">Rs. 40.00</span>
+                                <span id="shipping" class="fw-semibold">
+                                    {% if shipping_amount > 0 %}
+                                        <span class="text-dark">Rs. {{ shipping_amount|floatformat:0 }}</span>
+                                    {% else %}
+                                        <span class="text-success">FREE</span>
+                                    {% endif %}
+                                </span>
                             </li>
                             
                             <!-- Total -->
@@ -115,7 +137,7 @@
                                     <br>
                                     <small class="text-muted">(including GST)</small>
                                 </div>
-                                <span id="totalamount" class="fs-4 fw-bold text-primary">Rs. {{totalamount}}</span>
+                                <span id="totalamount" class="fs-4 fw-bold text-primary">Rs. {{totalamount|floatformat:2}}</span>
                             </li>
                         </ul>
                         

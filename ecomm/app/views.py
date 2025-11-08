@@ -199,11 +199,22 @@ def show_cart(request):
     user = request.user
     cart_items = cart.objects.filter(user=user)
     amount = 0
-    shipping_amount = 40
+    
     for p in cart_items:
-        # value = p.quantity * p.product.discounted_price
         amount = amount + p.total_cost
-    totalamount = amount + shipping_amount
+    
+    # Calculate GST (5% SGST + 5% CGST = 10% total GST)
+    sgst = amount * 0.05  # 5% SGST
+    cgst = amount * 0.05  # 5% CGST
+    total_gst = sgst + cgst
+    
+    # Apply shipping charge logic: Free shipping for orders ≥ ₹500
+    if amount >= 500:
+        shipping_amount = 0
+    else:
+        shipping_amount = 40
+    
+    totalamount = amount + total_gst + shipping_amount
     return render(request, 'app/addtocart.html', locals())
 
 
@@ -234,7 +245,6 @@ def checkout(request):
     
     # STEP 6: Calculate total amount based on checkout type
     amount = 0
-    shipping_amount = 40  # Fixed shipping charge
     
     if buy_now_product_id:
         # Buy Now checkout - single product
@@ -268,7 +278,18 @@ def checkout(request):
             amount += p.total_cost  # Calculate total cost of all products
         is_buy_now = False
     
-    totalamount = amount + shipping_amount  # Add shipping to get final amount
+    # Calculate GST (5% SGST + 5% CGST = 10% total GST)
+    sgst = amount * 0.05  # 5% SGST
+    cgst = amount * 0.05  # 5% CGST
+    total_gst = sgst + cgst
+    
+    # Apply shipping charge logic: Free shipping for orders ≥ ₹500
+    if amount >= 500:
+        shipping_amount = 0
+    else:
+        shipping_amount = 40
+    
+    totalamount = amount + total_gst + shipping_amount  # Add GST and shipping to get final amount
     
     # STEP 7: Convert amount to paise (Razorpay requires amount in smallest currency unit)
     razoramount = int(totalamount * 100)  # ₹256 = 25600 paise
@@ -417,16 +438,30 @@ def plus_cart(request):
         c.quantity += 1
         c.save()
         amount = 0
-        shipping_amount = 40
         cart_items = cart.objects.filter(user=request.user)
         for p in cart_items:
             amount += p.total_cost
-        totalamount = amount + shipping_amount
+        
+        # Calculate GST (5% SGST + 5% CGST = 10% total GST)
+        sgst = amount * 0.05  # 5% SGST
+        cgst = amount * 0.05  # 5% CGST
+        total_gst = sgst + cgst
+        
+        # Apply shipping charge logic: Free shipping for orders ≥ ₹500
+        if amount >= 500:
+            shipping_amount = 0
+        else:
+            shipping_amount = 40
+        
+        totalamount = amount + total_gst + shipping_amount
         cart_count = cart_items.count()
         data = {
             'quantity': c.quantity,
             'amount': amount,
+            'sgst': sgst,
+            'cgst': cgst,
             'totalamount': totalamount,
+            'shipping_amount': shipping_amount,
             'cart_count': cart_count
         }
         return JsonResponse(data)
@@ -439,16 +474,30 @@ def minus_cart(request):
             c.quantity -= 1
             c.save()
         amount = 0
-        shipping_amount = 40
         cart_items = cart.objects.filter(user=request.user)
         for p in cart_items:
             amount += p.total_cost
-        totalamount = amount + shipping_amount
+        
+        # Calculate GST (5% SGST + 5% CGST = 10% total GST)
+        sgst = amount * 0.05  # 5% SGST
+        cgst = amount * 0.05  # 5% CGST
+        total_gst = sgst + cgst
+        
+        # Apply shipping charge logic: Free shipping for orders ≥ ₹500
+        if amount >= 500:
+            shipping_amount = 0
+        else:
+            shipping_amount = 40
+        
+        totalamount = amount + total_gst + shipping_amount
         cart_count = cart_items.count()
         data = {
             'quantity': c.quantity,
             'amount': amount,
+            'sgst': sgst,
+            'cgst': cgst,
             'totalamount': totalamount,
+            'shipping_amount': shipping_amount,
             'cart_count': cart_count
         }
         return JsonResponse(data)
@@ -459,15 +508,29 @@ def remove_cart(request):
         c = cart.objects.get(Q(id=prod_id) & Q(user=request.user))
         c.delete()
         amount = 0
-        shipping_amount = 40
         cart_items = cart.objects.filter(user=request.user)
         for p in cart_items:
             amount += p.total_cost
-        totalamount = amount + shipping_amount
+        
+        # Calculate GST (5% SGST + 5% CGST = 10% total GST)
+        sgst = amount * 0.05  # 5% SGST
+        cgst = amount * 0.05  # 5% CGST
+        total_gst = sgst + cgst
+        
+        # Apply shipping charge logic: Free shipping for orders ≥ ₹500
+        if amount >= 500:
+            shipping_amount = 0
+        else:
+            shipping_amount = 40
+        
+        totalamount = amount + total_gst + shipping_amount
         cart_count = cart_items.count()
         data = {
             'amount': amount,
+            'sgst': sgst,
+            'cgst': cgst,
             'totalamount': totalamount,
+            'shipping_amount': shipping_amount,
             'cart_count': cart_count
         }
         return JsonResponse(data)

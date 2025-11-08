@@ -36,7 +36,26 @@ $(document).ready(function () {
       success: function (data) {
         eml.innerText = data.quantity;
         document.getElementById("amount").innerText = data.amount;
-        document.getElementById("totalamount").innerText = data.totalamount;
+        document.getElementById("totalamount").innerText =
+          data.totalamount.toFixed(2);
+
+        // Update GST amounts
+        document.getElementById("sgst").innerText =
+          "Rs. " + data.sgst.toFixed(2);
+        document.getElementById("cgst").innerText =
+          "Rs. " + data.cgst.toFixed(2);
+
+        // Update shipping amount display
+        var shippingElement = document.getElementById("shipping");
+        if (shippingElement) {
+          if (data.shipping_amount === 0) {
+            shippingElement.innerText = "FREE";
+            shippingElement.className = "fw-semibold text-success";
+          } else {
+            shippingElement.innerText = "Rs. " + data.shipping_amount;
+            shippingElement.className = "fw-semibold text-dark";
+          }
+        }
 
         // Update navbar cart badge
         var navbarCartBadge = document.getElementById("cart-badge");
@@ -59,7 +78,26 @@ $(document).ready(function () {
       success: function (data) {
         eml.innerText = data.quantity;
         document.getElementById("amount").innerText = data.amount;
-        document.getElementById("totalamount").innerText = data.totalamount;
+        document.getElementById("totalamount").innerText =
+          data.totalamount.toFixed(2);
+
+        // Update GST amounts
+        document.getElementById("sgst").innerText =
+          "Rs. " + data.sgst.toFixed(2);
+        document.getElementById("cgst").innerText =
+          "Rs. " + data.cgst.toFixed(2);
+
+        // Update shipping amount display
+        var shippingElement = document.getElementById("shipping");
+        if (shippingElement) {
+          if (data.shipping_amount === 0) {
+            shippingElement.innerText = "FREE";
+            shippingElement.className = "fw-semibold text-success";
+          } else {
+            shippingElement.innerText = "Rs. " + data.shipping_amount;
+            shippingElement.className = "fw-semibold text-dark";
+          }
+        }
 
         // Update navbar cart badge
         var navbarCartBadge = document.getElementById("cart-badge");
@@ -81,7 +119,26 @@ $(document).ready(function () {
       },
       success: function (data) {
         document.getElementById("amount").innerText = data.amount;
-        document.getElementById("totalamount").innerText = data.totalamount;
+        document.getElementById("totalamount").innerText =
+          data.totalamount.toFixed(2);
+
+        // Update GST amounts
+        document.getElementById("sgst").innerText =
+          "Rs. " + data.sgst.toFixed(2);
+        document.getElementById("cgst").innerText =
+          "Rs. " + data.cgst.toFixed(2);
+
+        // Update shipping amount display
+        var shippingElement = document.getElementById("shipping");
+        if (shippingElement) {
+          if (data.shipping_amount === 0) {
+            shippingElement.innerText = "FREE";
+            shippingElement.className = "fw-semibold text-success";
+          } else {
+            shippingElement.innerText = "Rs. " + data.shipping_amount;
+            shippingElement.className = "fw-semibold text-dark";
+          }
+        }
 
         // Update navbar cart badge
         var navbarCartBadge = document.getElementById("cart-badge");
