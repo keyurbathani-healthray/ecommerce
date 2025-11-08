@@ -137,3 +137,70 @@ class whishlist(models.Model):
 
     def __str__(self):
         return f"Wishlist item {self.id} for {self.user.username}"
+
+
+class Invoice(models.Model):
+    """
+    Invoice model to store invoice/bill details for delivered orders
+    """
+    invoice_number = models.CharField(max_length=100, unique=True)
+    order = models.ForeignKey(OrderPlaced, on_delete=models.CASCADE, related_name='invoices')
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
+    payment = models.ForeignKey(Payment, on_delete=models.CASCADE)
+    
+    # Invoice Details
+    invoice_date = models.DateTimeField(auto_now_add=True)
+    
+    # Product Details (stored for record keeping even if product changes)
+    product_title = models.CharField(max_length=200)
+    product_quantity = models.PositiveIntegerField()
+    product_price = models.FloatField()
+    
+    # Payment Summary
+    subtotal = models.FloatField()
+    sgst = models.FloatField(default=0)  # 5%
+    cgst = models.FloatField(default=0)  # 5%
+    shipping_charge = models.FloatField(default=40)
+    total_amount = models.FloatField()
+    
+    # Delivery Address (stored for record keeping)
+    delivery_name = models.CharField(max_length=200)
+    delivery_mobile = models.CharField(max_length=10)
+    delivery_locality = models.CharField(max_length=200)
+    delivery_city = models.CharField(max_length=50)
+    delivery_state = models.CharField(max_length=50)
+    delivery_zipcode = models.CharField(max_length=10)
+    
+    # Payment Details
+    payment_method = models.CharField(max_length=50, default='Online Payment')
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    
+    # Status
+    is_generated = models.BooleanField(default=True)
+    
+    class Meta:
+        ordering = ['-invoice_date']
+        
+    def __str__(self):
+        return f"Invoice {self.invoice_number} - {self.customer.name}"
+    
+    def save(self, *args, **kwargs):
+        # Auto-generate invoice number if not exists
+        if not self.invoice_number:
+            # Format: INV-YYYYMMDD-XXXX
+            from django.utils import timezone
+            date_str = timezone.now().strftime('%Y%m%d')
+            last_invoice = Invoice.objects.filter(
+                invoice_number__startswith=f'INV-{date_str}'
+            ).order_by('-invoice_number').first()
+            
+            if last_invoice:
+                last_number = int(last_invoice.invoice_number.split('-')[-1])
+                new_number = last_number + 1
+            else:
+                new_number = 1
+                
+            self.invoice_number = f'INV-{date_str}-{new_number:04d}'
+        
+        super().save(*args, **kwargs)

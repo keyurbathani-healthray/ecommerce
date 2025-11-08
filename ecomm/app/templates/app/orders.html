@@ -219,6 +219,15 @@
                                                 </span>
                                             {% endif %}
                                         </div>
+
+                                        <!-- Download Invoice Button (Only for Delivered Orders) -->
+                                        {% if order.status == 'Delivered' %}
+                                        <div class="text-center mt-3">
+                                            <a href="{% url 'generate-invoice' order.id %}" class="btn btn-success btn-sm" target="_blank">
+                                                <i class="fas fa-file-invoice me-1"></i> View Invoice
+                                            </a>
+                                        </div>
+                                        {% endif %}
                                     </div>
                                 </div>
                             </div>

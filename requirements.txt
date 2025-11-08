@@ -17,6 +17,8 @@ distro-info==1.1+ubuntu0.2
 Django==5.2.7
 django-browser-reload==1.21.0
 djlint==1.36.4
+reportlab==4.0.7
+weasyprint==60.1
 EditorConfig==0.17.1
 httplib2==0.20.2
 idna==3.3

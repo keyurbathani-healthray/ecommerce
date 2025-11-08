@@ -39,6 +39,10 @@ urlpatterns = [
    # Search URL
    path('search/', views.search_results, name='search-results'),
 
+   # Invoice URLs
+   path('generate-invoice/<int:order_id>/', views.generate_invoice, name='generate-invoice'),
+   path('view-invoice/<int:invoice_id>/', views.view_invoice, name='view-invoice'),
+   path('download-invoice/<int:invoice_id>/', views.download_invoice, name='download-invoice'),
 
    # Authentication URLs
    path('register/', views.customer_registration, name='customer-registration'),

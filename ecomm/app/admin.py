@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Customer, Payment, Product, cart, OrderPlaced, whishlist
+from .models import Customer, Payment, Product, cart, OrderPlaced, whishlist, Invoice
 
 # Register your models here.
 
@@ -28,3 +28,10 @@ class PaymentModelAdmin(admin.ModelAdmin):
 @admin.register(whishlist)
 class WishlistModelAdmin(admin.ModelAdmin):
     list_display = ['id','user','product']
+
+@admin.register(Invoice)
+class InvoiceModelAdmin(admin.ModelAdmin):
+    list_display = ['id','invoice_number','order','customer','total_amount','invoice_date','is_generated']
+    list_filter = ['invoice_date','is_generated']
+    search_fields = ['invoice_number','customer__name','delivery_mobile']
+    readonly_fields = ['invoice_number','invoice_date']

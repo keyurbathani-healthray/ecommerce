@@ -1,6 +1,6 @@
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
-from .models import OrderPlaced, Payment, Product, Customer, cart, whishlist, get_object_or_404
+from .models import OrderPlaced, Payment, Product, Customer, cart, whishlist, Invoice, get_object_or_404
 from django.views import View
 from .forms import CustomerProfileForm, CustomerRegistrationForm, CustomerLoginForm, CustomPasswordChangeForm
 from django.contrib import messages
@@ -8,6 +8,14 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 # from django.views.decorators.csrf import csrf_protect
 # from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
+from django.template.loader import render_to_string
+from io import BytesIO
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT, TA_LEFT
 from django.db.models import Q
 import razorpay
 from django.conf import settings
@@ -636,3 +644,262 @@ def search_results(request):
         'products': products,
         'query': query
     })
+
+
+@login_required
+def generate_invoice(request, order_id):
+    """
+    Generate or retrieve invoice for a delivered order.
+    Creates invoice in database if doesn't exist.
+    """
+    try:
+        # Get the order
+        order = OrderPlaced.objects.get(id=order_id, user=request.user)
+        
+        # Check if order is delivered
+        if order.status != 'Delivered':
+            messages.warning(request, 'Invoice can only be generated for delivered orders.')
+            return redirect('orders')
+        
+        # Check if invoice already exists
+        invoice = Invoice.objects.filter(order=order).first()
+        
+        if not invoice:
+            # Calculate amounts
+            subtotal = order.quantity * order.product.discounted_price
+            sgst = round(subtotal * 0.05, 2)
+            cgst = round(subtotal * 0.05, 2)
+            
+            # Determine shipping charge (free if subtotal >= 500)
+            shipping_charge = 0 if subtotal >= 500 else 40
+            
+            total_amount = subtotal + sgst + cgst + shipping_charge
+            
+            # Create new invoice
+            invoice = Invoice.objects.create(
+                order=order,
+                user=request.user,
+                customer=order.customer,
+                payment=order.payment,
+                
+                # Product details
+                product_title=order.product.title,
+                product_quantity=order.quantity,
+                product_price=order.product.discounted_price,
+                
+                # Payment summary
+                subtotal=subtotal,
+                sgst=sgst,
+                cgst=cgst,
+                shipping_charge=shipping_charge,
+                total_amount=total_amount,
+                
+                # Delivery address
+                delivery_name=order.customer.name,
+                delivery_mobile=order.customer.mobile,
+                delivery_locality=order.customer.locality,
+                delivery_city=order.customer.city,
+                delivery_state=order.customer.state,
+                delivery_zipcode=order.customer.zipcode,
+                
+                # Payment details
+                payment_method='Online Payment (Razorpay)',
+                razorpay_payment_id=order.payment.razorpay_payment_id,
+            )
+            
+            messages.success(request, f'Invoice {invoice.invoice_number} generated successfully!')
+        
+        # Redirect to view invoice
+        return redirect('view-invoice', invoice_id=invoice.id)
+        
+    except OrderPlaced.DoesNotExist:
+        messages.error(request, 'Order not found.')
+        return redirect('orders')
+    except Exception as e:
+        messages.error(request, f'Error generating invoice: {str(e)}')
+        return redirect('orders')
+
+
+@login_required
+def view_invoice(request, invoice_id):
+    """
+    View invoice in browser (HTML format).
+    """
+    try:
+        invoice = Invoice.objects.get(id=invoice_id, user=request.user)
+        return render(request, 'app/invoice.html', {'invoice': invoice})
+    except Invoice.DoesNotExist:
+        messages.error(request, 'Invoice not found.')
+        return redirect('orders')
+
+
+@login_required
+def download_invoice(request, invoice_id):
+    """
+    Download invoice as PDF file using ReportLab.
+    """
+    try:
+        invoice = Invoice.objects.get(id=invoice_id, user=request.user)
+        
+        # Create a file-like buffer to receive PDF data
+        buffer = BytesIO()
+        
+        # Create the PDF object using the buffer
+        pdf = SimpleDocTemplate(buffer, pagesize=A4, rightMargin=72, leftMargin=72,
+                               topMargin=72, bottomMargin=72)
+        
+        # Container for PDF elements
+        elements = []
+        
+        # Define styles
+        styles = getSampleStyleSheet()
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=colors.HexColor('#198754'),
+            spaceAfter=30,
+            alignment=TA_CENTER
+        )
+        
+        heading_style = ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=colors.HexColor('#198754'),
+            spaceAfter=12,
+        )
+        
+        normal_style = styles['Normal']
+        
+        # Company Header
+        elements.append(Paragraph("DAIRY PRODUCTS", title_style))
+        elements.append(Paragraph("TAX INVOICE", ParagraphStyle(
+            'Subtitle', parent=styles['Normal'], fontSize=12, alignment=TA_CENTER, textColor=colors.grey
+        )))
+        elements.append(Spacer(1, 20))
+        
+        # Company and Invoice Info Table
+        header_data = [
+            ['Phone: +91 1234567890', f'Invoice No: {invoice.invoice_number}'],
+            ['Email: support@dairy.com', f'Invoice Date: {invoice.invoice_date.strftime("%d %b, %Y")}'],
+            ['Website: www.dairy.com', f'Order Date: {invoice.order.ordered_date.strftime("%d %b, %Y")}'],
+        ]
+        
+        header_table = Table(header_data, colWidths=[3*inch, 3*inch])
+        header_table.setStyle(TableStyle([
+            ('FONTSIZE', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 12),
+        ]))
+        elements.append(header_table)
+        elements.append(Spacer(1, 20))
+        
+        # Bill To Section
+        elements.append(Paragraph("BILL TO:", heading_style))
+        bill_to_text = f"""
+        <b>{invoice.delivery_name}</b><br/>
+        {invoice.delivery_locality}<br/>
+        {invoice.delivery_city}, {invoice.delivery_state}<br/>
+        PIN: {invoice.delivery_zipcode}<br/>
+        Mobile: {invoice.delivery_mobile}<br/>
+        Email: {invoice.user.email}
+        """
+        elements.append(Paragraph(bill_to_text, normal_style))
+        elements.append(Spacer(1, 20))
+        
+        # Items Table
+        elements.append(Paragraph("ORDER DETAILS:", heading_style))
+        items_data = [
+            ['Item Description', 'Quantity', 'Unit Price', 'Total'],
+            [invoice.product_title, str(invoice.product_quantity), 
+             f'₹{invoice.product_price}', f'₹{invoice.subtotal}']
+        ]
+        
+        items_table = Table(items_data, colWidths=[3*inch, 1*inch, 1.5*inch, 1.5*inch])
+        items_table.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#198754')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+        elements.append(items_table)
+        elements.append(Spacer(1, 20))
+        
+        # Totals Table
+        shipping_text = "FREE" if invoice.shipping_charge == 0 else f'₹{invoice.shipping_charge}'
+        totals_data = [
+            ['Subtotal:', f'₹{invoice.subtotal}'],
+            ['SGST (5%):', f'₹{invoice.sgst}'],
+            ['CGST (5%):', f'₹{invoice.cgst}'],
+            ['Shipping:', shipping_text],
+            ['<b>TOTAL AMOUNT:</b>', f'<b>₹{invoice.total_amount}</b>'],
+        ]
+        
+        totals_table = Table(totals_data, colWidths=[4.5*inch, 2*inch])
+        totals_table.setStyle(TableStyle([
+            ('ALIGN', (0, 0), (-1, -1), 'RIGHT'),
+            ('FONTSIZE', (0, 0), (-1, -1), 11),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+            ('LINEABOVE', (0, -1), (-1, -1), 2, colors.HexColor('#198754')),
+            ('FONTSIZE', (0, -1), (-1, -1), 14),
+            ('TEXTCOLOR', (0, -1), (-1, -1), colors.HexColor('#198754')),
+        ]))
+        elements.append(totals_table)
+        elements.append(Spacer(1, 30))
+        
+        # Payment Information
+        elements.append(Paragraph("PAYMENT INFORMATION:", heading_style))
+        payment_text = f"""
+        Payment Method: {invoice.payment_method}<br/>
+        Payment Status: <font color='green'><b>PAID</b></font><br/>
+        """
+        if invoice.razorpay_payment_id:
+            payment_text += f"Transaction ID: {invoice.razorpay_payment_id}<br/>"
+        payment_text += f"Payment Date: {invoice.order.ordered_date.strftime('%d %b, %Y %H:%M')}"
+        
+        elements.append(Paragraph(payment_text, normal_style))
+        elements.append(Spacer(1, 30))
+        
+        # Thank You Message
+        thank_you_style = ParagraphStyle(
+            'ThankYou',
+            parent=styles['Normal'],
+            fontSize=16,
+            textColor=colors.HexColor('#198754'),
+            alignment=TA_CENTER,
+            spaceAfter=20,
+        )
+        elements.append(Paragraph("<b>Thank You for Your Purchase!</b>", thank_you_style))
+        
+        # Footer
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.grey,
+            alignment=TA_CENTER,
+        )
+        elements.append(Paragraph("This is a computer-generated invoice and does not require a signature.", footer_style))
+        elements.append(Paragraph("For any queries, please contact us at support@dairy.com or call +91 1234567890", footer_style))
+        elements.append(Paragraph("© 2025 Dairy Products. All rights reserved.", footer_style))
+        
+        # Build PDF
+        pdf.build(elements)
+        
+        # Get the value of the BytesIO buffer and write it to the response
+        buffer.seek(0)
+        response = HttpResponse(buffer, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="Invoice_{invoice.invoice_number}.pdf"'
+        
+        return response
+        
+    except Invoice.DoesNotExist:
+        messages.error(request, 'Invoice not found.')
+        return redirect('orders')
+    except Exception as e:
+        messages.error(request, f'Error downloading invoice: {str(e)}')
+        return redirect('orders')
